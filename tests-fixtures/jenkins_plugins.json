@@ -1,0 +1,1158 @@
+{
+  "plugins" : [
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Matrix Authorization Strategy Plugin",
+      "pinned" : false,
+      "shortName" : "matrix-auth",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Matrix+Authorization+Strategy+Plugin",
+      "version" : "1.1"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "conditional-buildstep",
+      "pinned" : false,
+      "shortName" : "conditional-buildstep",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "https://wiki.jenkins-ci.org/display/JENKINS/Conditional+BuildStep+Plugin",
+      "version" : "1.3.3"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Delivery Pipeline Plugin",
+      "pinned" : false,
+      "shortName" : "delivery-pipeline-plugin",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "https://wiki.jenkins-ci.org/display/JENKINS/Delivery+Pipeline+Plugin",
+      "version" : "0.8.7"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Jenkins Mailer Plugin",
+      "pinned" : false,
+      "shortName" : "mailer",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Mailer",
+      "version" : "1.8"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Windows Slaves Plugin",
+      "pinned" : false,
+      "shortName" : "windows-slaves",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Windows+Slaves+Plugin",
+      "version" : "1.0"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Jenkins GIT plugin",
+      "pinned" : false,
+      "shortName" : "git",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Git+Plugin",
+      "version" : "2.2.9"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Jenkins GIT client plugin",
+      "pinned" : false,
+      "shortName" : "git-client",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Git+Client+Plugin",
+      "version" : "1.11.1"
+    },
+    {
+      "active" : true,
+      "backupVersion" : "1.6",
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : true,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "SSH Credentials Plugin",
+      "pinned" : true,
+      "shortName" : "ssh-credentials",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/SSH+Credentials+Plugin",
+      "version" : "1.10"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Jenkins Translation Assistance plugin",
+      "pinned" : false,
+      "shortName" : "translation",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Translation+Assistance+Plugin",
+      "version" : "1.10"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Jenkins SSH Slaves plugin",
+      "pinned" : false,
+      "shortName" : "ssh-slaves",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/SSH+Slaves+plugin",
+      "version" : "1.5"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Jenkins jQuery plugin",
+      "pinned" : false,
+      "shortName" : "jquery",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/jQuery+Plugin",
+      "version" : "1.7.2-1"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Jenkins CVS Plug-in",
+      "pinned" : false,
+      "shortName" : "cvs",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/CVS+Plugin",
+      "version" : "2.11"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "OWASP Markup Formatter Plugin",
+      "pinned" : false,
+      "shortName" : "antisamy-markup-formatter",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/OWASP+Markup+Formatter+Plugin",
+      "version" : "1.1"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "SCM API Plugin",
+      "pinned" : false,
+      "shortName" : "scm-api",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/SCM+API+Plugin",
+      "version" : "0.2"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Next Build Number Plugin",
+      "pinned" : false,
+      "shortName" : "next-build-number",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "https://wiki.jenkins-ci.org/display/JENKINS/Next+Build+Number+Plugin",
+      "version" : "1.1"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Javadoc Plugin",
+      "pinned" : false,
+      "shortName" : "javadoc",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Javadoc+Plugin",
+      "version" : "1.1"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Token Macro Plugin",
+      "pinned" : false,
+      "shortName" : "token-macro",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Token+Macro+Plugin",
+      "version" : "1.10"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "PAM Authentication plugin",
+      "pinned" : false,
+      "shortName" : "pam-auth",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/PAM+Authentication+Plugin",
+      "version" : "1.1"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Run Condition Plugin",
+      "pinned" : false,
+      "shortName" : "run-condition",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Run+Condition+Plugin",
+      "version" : "1.0"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "External Monitor Job Type Plugin",
+      "pinned" : false,
+      "shortName" : "external-monitor-job",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "https://wiki.jenkins-ci.org/display/JENKINS/Monitoring+external+jobs",
+      "version" : "1.2"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "AnsiColor",
+      "pinned" : false,
+      "shortName" : "ansicolor",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/AnsiColor+Plugin",
+      "version" : "0.4.0"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Jenkins Parameterized Trigger plugin",
+      "pinned" : false,
+      "shortName" : "parameterized-trigger",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Parameterized+Trigger+Plugin",
+      "version" : "2.25"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "LDAP Plugin",
+      "pinned" : false,
+      "shortName" : "ldap",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/LDAP+Plugin",
+      "version" : "1.6"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Jenkins Subversion Plug-in",
+      "pinned" : false,
+      "shortName" : "subversion",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Subversion+Plugin",
+      "version" : "1.54"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Ant Plugin",
+      "pinned" : false,
+      "shortName" : "ant",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Ant+Plugin",
+      "version" : "1.2"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Build Pipeline Plugin",
+      "pinned" : false,
+      "shortName" : "build-pipeline-plugin",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "https://wiki.jenkins-ci.org/display/JENKINS/Build+Pipeline+Plugin",
+      "version" : "1.4.4"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Jenkins Multijob plugin",
+      "pinned" : false,
+      "shortName" : "jenkins-multijob-plugin",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Multijob+Plugin",
+      "version" : "1.15"
+    },
+    {
+      "active" : true,
+      "backupVersion" : "1.9.4",
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : true,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Credentials Plugin",
+      "pinned" : true,
+      "shortName" : "credentials",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Credentials+Plugin",
+      "version" : "1.18"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Maven Integration plugin",
+      "pinned" : false,
+      "shortName" : "maven-plugin",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Maven+Project+Plugin",
+      "version" : "2.3"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : true,
+      "deleted" : false,
+      "dependencies" : [
+        
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : true,
+      "longName" : "Matrix Project Plugin",
+      "pinned" : false,
+      "shortName" : "matrix-project",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "https://wiki.jenkins-ci.org/display/JENKINS/Matrix+Project+Plugin",
+      "version" : "1.2"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Environment Injector Plugin",
+      "pinned" : false,
+      "shortName" : "envinject",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "https://wiki.jenkins-ci.org/display/JENKINS/EnvInject+Plugin",
+      "version" : "1.90"
+    },
+    {
+      "active" : true,
+      "backupVersion" : null,
+      "bundled" : false,
+      "deleted" : false,
+      "dependencies" : [
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        },
+        {
+          
+        }
+      ],
+      "downgradable" : false,
+      "enabled" : true,
+      "hasUpdate" : false,
+      "longName" : "Copy Artifact Plugin",
+      "pinned" : false,
+      "shortName" : "copyartifact",
+      "supportsDynamicLoad" : "MAYBE",
+      "url" : "http://wiki.jenkins-ci.org/display/JENKINS/Copy+Artifact+Plugin",
+      "version" : "1.32.1"
+    }
+  ]
+}
