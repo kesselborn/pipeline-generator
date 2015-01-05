@@ -1,4 +1,4 @@
-test: bindata.go checks
+test: checks
 	go test -v .
 
 build: bindata.go api-docs.html
