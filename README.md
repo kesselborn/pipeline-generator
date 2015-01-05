@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/soundcloud/pipeline-generator.svg)](https://travis-ci.org/soundcloud/pipeline-generator)
 
 # pipeline-generator
 Declare jenkins pipelines using a json configuration file.
