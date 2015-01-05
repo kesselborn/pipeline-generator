@@ -15,6 +15,10 @@ This uses an example configuration of this project to demo features:
   - either wait ~1 minute or trigger the job called `test-pipeline` by hand and go back to the pipeline view
   - in order to delete the pipeline and its jobs again call `./ppl-example delete test-pipeline`
 
+# api documentation
+
+[godoc api documentation](http://godoc.org/github.com/soundcloud/pipeline-generator)
+
 # configuration file format
 
 the configuration for this pipeline:
