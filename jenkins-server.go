@@ -154,6 +154,7 @@ func (js JenkinsServer) Check() error {
 		"jenkins-multijob-plugin",
 		"next-build-number",
 		"parameterized-trigger",
+		"ansicolor",
 	})
 }
 
