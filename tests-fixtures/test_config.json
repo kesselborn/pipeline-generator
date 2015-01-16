@@ -23,7 +23,7 @@
             "name": "stage2",
             "jobs": [
                 [
-                    { "job7": {"cmd": "echo 'job7'", "no-clean": true} },
+                    { "job7": {"cmd": "echo 'job7'; touch art1; touch art2;", "no-clean": true, "artifact": "art1,art2"} },
                     { "job8": "echo 'job8'" }
                 ]
             ],
