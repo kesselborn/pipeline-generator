@@ -322,10 +322,11 @@ func assetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() ([]byte, error){
-	"templates/jenkins/multi-job.xml": templates_jenkins_multi_job_xml,
+	"templates/jenkins/multi-job.xml":  templates_jenkins_multi_job_xml,
 	"templates/jenkins/normal-job.xml": templates_jenkins_normal_job_xml,
-	"templates/jenkins/pipeline.xml": templates_jenkins_pipeline_xml,
+	"templates/jenkins/pipeline.xml":   templates_jenkins_pipeline_xml,
 }
+
 // AssetDir returns the file names below a certain
 // directory embedded in the file by go-bindata.
 // For example if you run go-bindata on data/... and data contains the
@@ -362,18 +363,16 @@ func assetDir(name string) ([]string, error) {
 }
 
 type _bintree_t struct {
-	Func func() ([]byte, error)
+	Func     func() ([]byte, error)
 	Children map[string]*_bintree_t
 }
+
 var _bintree = &_bintree_t{nil, map[string]*_bintree_t{
 	"templates": &_bintree_t{nil, map[string]*_bintree_t{
 		"jenkins": &_bintree_t{nil, map[string]*_bintree_t{
-			"multi-job.xml": &_bintree_t{templates_jenkins_multi_job_xml, map[string]*_bintree_t{
-			}},
-			"normal-job.xml": &_bintree_t{templates_jenkins_normal_job_xml, map[string]*_bintree_t{
-			}},
-			"pipeline.xml": &_bintree_t{templates_jenkins_pipeline_xml, map[string]*_bintree_t{
-			}},
+			"multi-job.xml":  &_bintree_t{templates_jenkins_multi_job_xml, map[string]*_bintree_t{}},
+			"normal-job.xml": &_bintree_t{templates_jenkins_normal_job_xml, map[string]*_bintree_t{}},
+			"pipeline.xml":   &_bintree_t{templates_jenkins_pipeline_xml, map[string]*_bintree_t{}},
 		}},
 	}},
 }}
