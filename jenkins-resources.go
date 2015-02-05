@@ -59,6 +59,7 @@ type jenkinsSingleJob struct {
 	BranchSpecifier string
 	Command         string
 	SlaveLabel      string
+	WorkingDir      string
 }
 
 type jenkinsMultiJob struct {
@@ -382,6 +383,12 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 		setup = "\n# job setup\n" + _setup + "\n\n"
 	}
 
+	var workingDir string
+	if _workindDir, present := conf.Settings["working-dir"]; present == true {
+		workingDir = _workindDir + "/.*"
+		setup = "\n# change to working dir:\ncd " + _workindDir + "\n\n" + setup
+	}
+
 	jobCnt := 0
 	for _, stage := range conf.Stages {
 		for stageJobCnt, job := range stage.Jobs {
@@ -410,6 +417,7 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 
 				if jobCnt == 0 { // first job gets a nice name + polls git repo
 					jenkinsJob.ProjectNameTempl = "{{ .PipelineName }}"
+					jenkinsJob.WorkingDir = workingDir
 				}
 
 				pipeline.resources = append(pipeline.resources, jenkinsJob)

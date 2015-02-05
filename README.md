@@ -87,6 +87,7 @@ looks as follows:
             "jenkins-server": "http://jenkins:8080",
             "git-url": "http://github.com/kesselborn/tuev",
             "slave-label": "master",
+            "working-dir": "subdir",
             "job-setup": "export VAR=foobar"
         }
     }
@@ -127,6 +128,7 @@ This section contains global settings for the pipeline:
   - `git-url`: git url to the project that is to be built
   - `slave-label` (optional): only execute these jobs on jenkins slave with this label
   - `job-setup` (optional): before executing each job, execute the code provided here
+  - `working-dir` (optional): only consider the given subdir: only builds if the subdir contains changes; changes into the subdir before executing anything, i.e. all commands are relativ to the subdir, not the repository's root
 
 
 ## Versioning

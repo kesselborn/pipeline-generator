@@ -42,7 +42,7 @@
     <gitConfigName/>
     <gitConfigEmail/>
     <skipTag>true</skipTag>
-    <includedRegions/>
+    <includedRegions>{{ if .WorkingDir }}{{ .WorkingDir }}{{ end }}</includedRegions>
     <scmName/>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
     <submoduleCfg class="list"/>
@@ -134,9 +134,8 @@
       <command>
 # pipeline creator magic
 export PIPELINE_NUMBER=$(echo "${PIPELINE_VERSION}" | cut -f1 -d'-')
-export GIT_SHA=$(echo "${PIPELINE_VERSION}" | cut -f2 -d'-')
-{{ if .IsInitialJob }}{{ else }}git reset --hard ${GIT_SHA}{{ end }}
-
+export GIT_SHA=$(echo "${PIPELINE_VERSION}" | cut -f2 -d'-'){{ if .IsInitialJob }}{{ else }}
+git reset --hard ${GIT_SHA}{{ end }}
 {{ .Command }}
       </command>
     </hudson.tasks.Shell>

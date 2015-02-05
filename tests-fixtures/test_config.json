@@ -58,6 +58,7 @@
         "jenkins-server": "http://jenkins:8080",
         "git-url": "http://github.com/kesselborn/tuev",
         "slave-label": "master",
+        "working-dir": "subdir",
         "job-setup": "export VAR=foobar"
     }
 }
