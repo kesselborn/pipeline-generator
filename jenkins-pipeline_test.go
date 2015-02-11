@@ -92,6 +92,15 @@ func TestSettingsValidations(t *testing.T) {
 	}.Run(t)
 }
 
+func TestSingleJobCreation(t *testing.T) {
+	pipeline, err := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [{"foo":"bar"}]}], "settings":{"jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
+
+	expectations{
+		{"should raise no error", nil, err},
+		{"should only create one resource (no pipeline view when only one job is specified)", 1, len(pipeline.resources)},
+	}.Run(t)
+}
+
 func TestPipelineCreation(t *testing.T) {
 	jp, err := jenkinsConfigFromFile("tests-fixtures/test_config.json")
 

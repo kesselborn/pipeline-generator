@@ -433,7 +433,10 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 		}
 	}
 
-	pipeline.resources = append(pipeline.resources, jenkinsPipelineView{"{{ .PipelineName }}", pipeline.JenkinsServer})
+	// only create pipeline view if there are more than one job
+	if len(pipeline.resources) > 1 {
+		pipeline.resources = append(pipeline.resources, jenkinsPipelineView{"{{ .PipelineName }}", pipeline.JenkinsServer})
+	}
 
 	*jp = pipeline
 
