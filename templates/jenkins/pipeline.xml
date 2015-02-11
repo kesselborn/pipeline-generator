@@ -10,7 +10,7 @@
       <firstJob>{{ .Name }}</firstJob>
     </se.diabol.jenkins.pipeline.DeliveryPipelineView_-ComponentSpec>
   </componentSpecs>
-  <noOfPipelines>3</noOfPipelines>
+  <noOfPipelines>10</noOfPipelines>
   <showAggregatedPipeline>false</showAggregatedPipeline>
   <noOfColumns>1</noOfColumns>
   <sorting>none</sorting>
