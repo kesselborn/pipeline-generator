@@ -106,13 +106,13 @@ func (jp JenkinsPipeline) UpdatePipeline(pipelineName string) (string, error) {
 					return "", err
 				}
 
-				fmt.Printf("update\t%s\n", cur["url"]+"config.xml")
+				//fmt.Printf("update\t%s\n", cur["url"]+"config.xml")
 				_, err = http.Post(cur["url"]+"config.xml", "application/xml", src)
 				if err != nil {
 					return "", err
 				}
 			} else { // create new resource
-				fmt.Printf("create\t%s\n", string(jp.JenkinsServer)+"/job/"+projectName)
+				//fmt.Printf("create\t%s\n", string(jp.JenkinsServer)+"/job/"+projectName)
 				if err := resource.createResource(jp.JenkinsServer, pipelineName); err != nil {
 					return "", err
 				}
@@ -126,7 +126,7 @@ func (jp JenkinsPipeline) UpdatePipeline(pipelineName string) (string, error) {
 			return "", err
 		}
 
-		fmt.Printf("delete\t%s\n", jenkinsJob["url"])
+		//fmt.Printf("delete\t%s\n", jenkinsJob["url"])
 		if _, err = http.Post(jenkinsJob["url"]+"/doDelete", "application/xml", nil); err != nil {
 			return "", err
 		}

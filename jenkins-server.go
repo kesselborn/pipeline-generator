@@ -99,7 +99,7 @@ func backup(name, url string) error {
 		os.Exit(1)
 	}
 	defer f.Close()
-	fmt.Printf("backup\t%s\t%s\n", url, f.Name())
+	//fmt.Printf("backup\t%s\t%s\n", url, f.Name())
 
 	resp, err := http.Get(url + "config.xml")
 	if err != nil {
