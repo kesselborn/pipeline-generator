@@ -30,8 +30,15 @@ func ExampleJenkinsPipeline_UnmarshalJSON() {
 }
 
 func ExampleJenkinsPipeline() {
+	f, err := os.Open("Pipeline.example")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to open file Pipeline.example: %s", err.Error())
+		os.Exit(1)
+	}
+	defer f.Close()
+
 	// read config from file Pipeline:
-	ppl, err := NewJenkinsPipeline("Pipeline")
+	ppl, err := NewJenkinsPipeline(f)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, err.Error())
 		os.Exit(1)

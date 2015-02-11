@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"strings"
 	"text/template"
 )
@@ -162,19 +161,12 @@ func (jp JenkinsPipeline) CreatePipeline(pipelineName string) (string, error) {
 	return jp.JenkinsServer.viewURL(pipelineName), nil
 }
 
-// NewJenkinsPipeline returns a JenkinsPipeline by parsing the named config file
-func NewJenkinsPipeline(name string) (JenkinsPipeline, error) {
-	f, err := os.Open(name)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to open file %s: %s", name, err.Error())
-		os.Exit(1)
-	}
-	defer f.Close()
-
+// NewJenkinsPipeline returns a JenkinsPipeline by parsing the given configuration
+func NewJenkinsPipeline(configuration io.Reader) (JenkinsPipeline, error) {
 	var pipeline JenkinsPipeline
-	err = json.NewDecoder(f).Decode(&pipeline)
+	err := json.NewDecoder(configuration).Decode(&pipeline)
 	if err != nil {
-		return JenkinsPipeline{}, fmt.Errorf("unable to parse %s: %s\n", name, err.Error())
+		return JenkinsPipeline{}, fmt.Errorf("unable to parse pipeline configuration: %s\n", err.Error())
 	}
 
 	return pipeline, pipeline.JenkinsServer.Check()

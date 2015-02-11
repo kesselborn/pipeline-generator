@@ -30,7 +30,14 @@ func main() {
 		usage(fmt.Errorf("pipeline needs at least two arguments"))
 	}
 
-	pipeline, err := pipeline.NewJenkinsPipeline("Pipeline")
+	f, err := os.Open("Pipeline.example")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to open file Pipeline.example: %s", err.Error())
+		os.Exit(1)
+	}
+	defer f.Close()
+
+	pipeline, err := pipeline.NewJenkinsPipeline(f)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 		os.Exit(1)
