@@ -53,11 +53,12 @@ type configStage struct {
 }
 
 type configJob struct {
-	Label    string
-	Cmd      string
-	Artifact string
-	NoClean  bool
-	SubJobs  []configJob
+	Label        string
+	Cmd          string
+	Artifact     string
+	NoClean      bool
+	SubJobs      []configJob
+	UpstreamJobs []string
 }
 
 func (cj configJob) taskName() string {
@@ -111,6 +112,13 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 						switch jkey {
 						case "no-clean":
 							cj.NoClean = jvalue.(bool)
+						}
+					case []interface{}:
+						switch jkey {
+						case "upstream-jobs":
+							for _, upstreamJob := range jvalue.([]interface{}) {
+								cj.UpstreamJobs = append(cj.UpstreamJobs, upstreamJob.(string))
+							}
 						}
 					default:
 						return fmt.Errorf("job hash must only contain string or bool values, got %#v for key %s", jvalueType, jkey)

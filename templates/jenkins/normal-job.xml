@@ -49,6 +49,18 @@
     <extensions/>
   </scm>
   <triggers>
+    {{ if .UpstreamJobs }}
+    <jenkins.triggers.ReverseBuildTrigger>
+      <spec/>
+      <upstreamProjects>{{ .UpstreamJobs }}</upstreamProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </jenkins.triggers.ReverseBuildTrigger>
+    {{ end }}
     <hudson.triggers.SCMTrigger>
       <spec>* * * * *</spec>
       <ignorePostCommitHooks>false</ignorePostCommitHooks>
@@ -116,6 +128,18 @@
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <concurrentBuild>false</concurrentBuild>
+  {{ if .UpstreamJobs }}
+  <jenkins.triggers.ReverseBuildTrigger>
+    <spec/>
+    <upstreamProjects>{{ .UpstreamJobs }}</upstreamProjects>
+    <threshold>
+      <name>SUCCESS</name>
+      <ordinal>0</ordinal>
+      <color>BLUE</color>
+      <completeBuild>true</completeBuild>
+    </threshold>
+  </jenkins.triggers.ReverseBuildTrigger>
+  {{ end }}
   <builders>
     {{ range .ArtifactDep }}
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.32.1">

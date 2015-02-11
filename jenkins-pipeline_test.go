@@ -115,6 +115,7 @@ func TestPipelineCreation(t *testing.T) {
 		{"job0 nextJobs", []string{"~{{ .PipelineName }}.01.stage0.job1"}, jp.resources[0].(jenkinsSingleJob).NextJobs},
 		{"job0 manualNextJobs", "", jp.resources[0].(jenkinsSingleJob).NextManualJobs},
 		{"job0 workingDir", "subdir/.*", jp.resources[0].(jenkinsSingleJob).WorkingDir},
+		{"job0 upstream jobs", "upstreamjob1,upstreamjob2", jp.resources[0].(jenkinsSingleJob).UpstreamJobs},
 
 		{"job1 name", "job1", jp.resources[1].(jenkinsSingleJob).TaskName},
 		{"job1 IsInitialJob", false, jp.resources[1].(jenkinsSingleJob).IsInitialJob},
@@ -161,37 +162,6 @@ func TestPipelineArtifactLogic(t *testing.T) {
 	}.Run(t)
 }
 
-func TestRendering(t *testing.T) {
-	jp, _ := jenkinsConfigFromFile("tests-fixtures/test_config.json")
-
-	multiJob, multiJobErr := jp.resources[9].renderResource("multi-job-test")
-	singleInitialJob, singleInitialJobErr := jp.resources[0].renderResource("initial-job-with-artifact")
-	singleJob, singleJobErr := jp.resources[1].renderResource("normal-job-with-artifact-dep")
-	multiArtifDeps, multiArtifDepsErr := jp.resources[7].renderResource("multiple-artifact-deps")
-	pipelineView, pipelineViewError := jp.resources[15].renderResource("pipeline-view")
-
-	expectations{
-		{"rendering multi job should not throw error", nil, multiJobErr},
-		{"rendering normal job should not throw error", nil, singleJobErr},
-		{"rendering normal initial job should not throw error", nil, singleInitialJobErr},
-		{"rendering normal job with multiple artifact deps correctly", nil, multiArtifDepsErr},
-		{"rendering pipeline view shoud not throw error", nil, pipelineViewError},
-	}.Run(t)
-
-	if testing.Verbose() {
-		fmt.Fprintf(os.Stderr, "Verbose mode: storing rendering results in temporary files:\n")
-		for name, resource := range map[string]io.Reader{"multijob": multiJob, "singleInitialJob": singleInitialJob, "singleJob": singleJob, "pipelineView": pipelineView, "multipleArtifDeps": multiArtifDeps} {
-			f, err := ioutil.TempFile("", "__"+name+".xml__")
-			if err != nil {
-				t.Errorf(err.Error())
-				continue
-			}
-			fmt.Fprintf(os.Stderr, "\t%s\n", f.Name())
-			fmt.Fprintf(f, "%s", resource)
-		}
-	}
-}
-
 func TestJenkinsJobsParsing(t *testing.T) {
 	f := configFileDescriptor("tests-fixtures/jenkins_jobs.json")
 	var jobList jenkinsJobList
@@ -232,4 +202,35 @@ func TestJenkinsPluginsParsing(t *testing.T) {
 		{"check should fail if plugins are missing", true, invalidCheck != nil},
 		{"check should fail if plugins are missing (msg)", "jenkins server not setup correctly: required plugin 'invalid' not installed", invalidCheck.Error()},
 	}.Run(t)
+}
+
+func TestRendering(t *testing.T) {
+	jp, _ := jenkinsConfigFromFile("tests-fixtures/test_config.json")
+
+	multiJob, multiJobErr := jp.resources[9].renderResource("multi-job-test")
+	singleInitialJob, singleInitialJobErr := jp.resources[0].renderResource("initial-job-with-artifact")
+	singleJob, singleJobErr := jp.resources[1].renderResource("normal-job-with-artifact-dep")
+	multiArtifDeps, multiArtifDepsErr := jp.resources[7].renderResource("multiple-artifact-deps")
+	pipelineView, pipelineViewError := jp.resources[15].renderResource("pipeline-view")
+
+	expectations{
+		{"rendering multi job should not throw error", nil, multiJobErr},
+		{"rendering normal job should not throw error", nil, singleJobErr},
+		{"rendering normal initial job should not throw error", nil, singleInitialJobErr},
+		{"rendering normal job with multiple artifact deps correctly", nil, multiArtifDepsErr},
+		{"rendering pipeline view shoud not throw error", nil, pipelineViewError},
+	}.Run(t)
+
+	if testing.Verbose() {
+		fmt.Fprintf(os.Stderr, "Verbose mode: storing rendering results in temporary files:\n")
+		for name, resource := range map[string]io.Reader{"multijob": multiJob, "singleInitialJob": singleInitialJob, "singleJob": singleJob, "pipelineView": pipelineView, "multipleArtifDeps": multiArtifDeps} {
+			f, err := ioutil.TempFile("", "__"+name+".xml__")
+			if err != nil {
+				t.Errorf(err.Error())
+				continue
+			}
+			fmt.Fprintf(os.Stderr, "\t%s\n", f.Name())
+			fmt.Fprintf(f, "%s", resource)
+		}
+	}
 }

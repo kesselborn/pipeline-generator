@@ -59,6 +59,7 @@ type jenkinsSingleJob struct {
 	Command         string
 	SlaveLabel      string
 	WorkingDir      string
+	UpstreamJobs    string
 }
 
 type jenkinsMultiJob struct {
@@ -329,10 +330,11 @@ func newJenkinsJob(conf configFile, job configJob, setup string, stage configSta
 			CleanWorkspace:   !job.NoClean,
 			NextManualJobs:   nextManualJobsTemplate,
 		},
-		Artifact:   job.Artifact,
-		GitURL:     gitURL,
-		Command:    command,
-		SlaveLabel: conf.Settings["slave-label"],
+		Artifact:     job.Artifact,
+		GitURL:       gitURL,
+		Command:      command,
+		SlaveLabel:   conf.Settings["slave-label"],
+		UpstreamJobs: strings.Join(job.UpstreamJobs, ","),
 	}
 
 	if gitBranchPresent {
