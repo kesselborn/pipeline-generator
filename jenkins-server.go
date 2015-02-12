@@ -48,10 +48,12 @@ func (js JenkinsServer) viewURL(viewName string) string {
 func (js JenkinsServer) jobList() (jenkinsJobList, error) {
 	var jobList jenkinsJobList
 
+	debug("getting job list: %v/api/json\n", js)
 	resp, err := http.Get(string(js) + "/api/json")
 	if err != nil {
 		return jobList, err
 	}
+	debug("done\n")
 
 	err = json.NewDecoder(resp.Body).Decode(&jobList)
 	if err != nil {
@@ -89,6 +91,7 @@ func (js JenkinsServer) pipelineJobs(name string) (jenkinsJobList, error) {
 		}
 	}
 
+	debug("Jobs that match on jenkins server: %#v\n", jobs)
 	return jenkinsJobList{jobs}, nil
 }
 
@@ -99,7 +102,7 @@ func backup(name, url string) error {
 		os.Exit(1)
 	}
 	defer f.Close()
-	//fmt.Printf("backup\t%s\t%s\n", url, f.Name())
+	info("backup\t%s\t%s\n", url, f.Name())
 
 	resp, err := http.Get(url + "config.xml")
 	if err != nil {
@@ -176,6 +179,7 @@ func (js JenkinsServer) DeletePipeline(name string) (int, error) {
 			return 0, err
 		}
 
+		debug("post\t%s\n", jenkinsJob["url"]+"/doDelete")
 		if _, err = http.Post(jenkinsJob["url"]+"/doDelete", "application/xml", nil); err != nil {
 			return 0, err
 		}
@@ -183,7 +187,7 @@ func (js JenkinsServer) DeletePipeline(name string) (int, error) {
 
 	err = backup("pipeline-view-"+name, string(js)+"/view/"+name+"/")
 	if err != nil {
-		return 0, err
+		return buildNum, err
 	}
 
 	_, err = http.Post(string(js)+"/view/"+name+"/doDelete", "application/xml", nil)
