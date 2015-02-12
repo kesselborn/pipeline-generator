@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/soundcloud/pipeline-generator.svg)](https://travis-ci.org/soundcloud/pipeline-generator)
+[![GoDoc](http://godoc.org/github.com/soundcloud/pipeline-generator?status.svg)](http://godoc.org/github.com/soundcloud/pipeline-generator)
 
 # pipeline-generator
 Declare jenkins pipelines using a json configuration file.
@@ -14,10 +15,6 @@ This uses an example configuration of this project to demo features:
   - open url that is displayed
   - either wait ~1 minute or trigger the job called `test-pipeline` by hand and go back to the pipeline view
   - in order to delete the pipeline and its jobs again call `./ppl-example delete test-pipeline`
-
-# api documentation
-
-[godoc api documentation](http://godoc.org/github.com/soundcloud/pipeline-generator)
 
 # configuration file format
 
