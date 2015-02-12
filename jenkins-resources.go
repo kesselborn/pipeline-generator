@@ -159,6 +159,10 @@ func (jp JenkinsPipeline) CreatePipeline(pipelineName string) (string, error) {
 		}
 	}
 
+	if len(jp.resources) == 1 {
+		return jp.JenkinsServer.jobURL(pipelineName), nil
+	}
+
 	return jp.JenkinsServer.viewURL(pipelineName), nil
 }
 

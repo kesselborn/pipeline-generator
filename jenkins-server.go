@@ -40,6 +40,9 @@ func (js JenkinsServer) createView(viewName string, content io.Reader) error {
 
 	return err
 }
+func (js JenkinsServer) jobURL(jobName string) string {
+	return string(js) + "/job/" + jobName
+}
 
 func (js JenkinsServer) viewURL(viewName string) string {
 	return string(js) + "/view/" + viewName
