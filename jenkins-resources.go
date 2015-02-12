@@ -31,6 +31,7 @@ type jenkinsResource interface {
 // JenkinsPipeline represents a jenkins pipeline
 type JenkinsPipeline struct {
 	resources     []jenkinsResource
+	defaultName   string
 	JenkinsServer JenkinsServer
 }
 
@@ -70,6 +71,14 @@ type jenkinsMultiJob struct {
 type jenkinsPipelineView struct {
 	Name          string
 	jenkinsServer JenkinsServer
+}
+
+// DefaultName returns a default name which can be set in the configuration file
+func (jp JenkinsPipeline) DefaultName() (string, error) {
+	if jp.defaultName == "" {
+		return "", fmt.Errorf("no default name set in configuration file")
+	}
+	return jp.defaultName, nil
 }
 
 // UpdatePipeline updates the existing pipeline on JenkinsServer keeping as much state
@@ -379,6 +388,10 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 	var setup string
 	if _setup, present := conf.Settings["job-setup"]; present == true {
 		setup = "\n# job setup\n" + _setup + "\n\n"
+	}
+
+	if defaultName, present := conf.Settings["default-name"]; present == true {
+		pipeline.defaultName = defaultName
 	}
 
 	var workingDir string

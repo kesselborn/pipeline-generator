@@ -59,6 +59,7 @@
         "git-url": "http://github.com/kesselborn/tuev",
         "slave-label": "master",
         "working-dir": "subdir",
-        "job-setup": "export VAR=foobar"
+        "job-setup": "export VAR=foobar",
+        "default-name": "my-funny-pipeline"
     }
 }

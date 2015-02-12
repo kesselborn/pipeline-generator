@@ -106,6 +106,8 @@ The stages section contains an array of stages declarations that contain the fol
 
       `artifact`: pass on the listed artifacts (files or directories) to the next job. If the next job is a multi job, all sub-jobs will have the listed artifacts available. If several sub-jobs of a multi-job (see below) provide artifacts, the next job after the multi job will have all artifacts of all sub jobs available: in the example, `job7` and `job8` (sub-jobs of a multi-job) will receive the artifacts `spec3/` and `spec4/` from sub-jobs `job4` and `job5`.
 
+      `upstream-jobs`: an array of strings with job names that should trigger this pipeline after they have a successful new build
+
       `no-clean`: if set to true, the workspace will not be cleaned before starting the job (default is to always clear workspace -- us this if you would like to cache dependencies or build artifacts between builds)
 
       - multi job: an array of simple or extended job declarations (see `stage1 / job4 & job5` in example above). Those jobs will be executed in parallel:
@@ -125,6 +127,7 @@ This section contains global settings for the pipeline:
   - `git-url`: git url to the project that is to be built
   - `slave-label` (optional): only execute these jobs on jenkins slave with this label
   - `job-setup` (optional): before executing each job, execute the code provided here
+  - `default-name` (optional): optionally, define how your pipeline should be named here; this property will be available on 
   - `working-dir` (optional): only consider the given subdir: only builds if the subdir contains changes; changes into the subdir before executing anything, i.e. all commands are relativ to the subdir, not the repository's root
 
 

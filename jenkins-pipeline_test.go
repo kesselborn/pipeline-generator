@@ -103,6 +103,7 @@ func TestSingleJobCreation(t *testing.T) {
 
 func TestPipelineCreation(t *testing.T) {
 	jp, err := jenkinsConfigFromFile("tests-fixtures/test_config.json")
+	defaultName, _ := jp.DefaultName()
 
 	job1EndPoint, job1EndPointError := jp.resources[1].projectName("test-project")
 	pipelineViewEndPoint, pipelineViewEndPointError := jp.resources[16].projectName("test-project")
@@ -111,6 +112,7 @@ func TestPipelineCreation(t *testing.T) {
 		{"endpoint rendering for job1 worked", nil, job1EndPointError},
 		{"endpoint rendering for pipeline view worked", nil, pipelineViewEndPointError},
 		{"jenkins server", JenkinsServer("http://jenkins:8080"), jp.JenkinsServer},
+		{"default name", "my-funny-pipeline", defaultName},
 
 		{"parsed all resources", 17, len(jp.resources)},
 		{"job0 name", "job0", jp.resources[0].(jenkinsSingleJob).TaskName},

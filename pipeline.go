@@ -11,4 +11,7 @@ type Pipeline interface {
 
 	// UpdatePipeline updates pipeline
 	UpdatePipeline(pipelineName string) (string, error)
+
+	// DefaultName returns a default name which can be set in the configuration file
+	DefaultName() (string, error)
 }
