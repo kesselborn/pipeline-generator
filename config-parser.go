@@ -53,12 +53,13 @@ type configStage struct {
 }
 
 type configJob struct {
-	Label        string
-	Cmd          string
-	Artifact     string
-	NoClean      bool
-	SubJobs      []configJob
-	UpstreamJobs []string
+	Label          string
+	Cmd            string
+	Artifact       string
+	NoClean        bool
+	SubJobs        []configJob
+	UpstreamJobs   []string
+	DownstreamJobs []string
 }
 
 func (cj configJob) taskName() string {
@@ -115,6 +116,10 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 						}
 					case []interface{}:
 						switch jkey {
+						case "downstream-jobs":
+							for _, downstreamJob := range jvalue.([]interface{}) {
+								cj.DownstreamJobs = append(cj.DownstreamJobs, downstreamJob.(string))
+							}
 						case "upstream-jobs":
 							for _, upstreamJob := range jvalue.([]interface{}) {
 								cj.UpstreamJobs = append(cj.UpstreamJobs, upstreamJob.(string))

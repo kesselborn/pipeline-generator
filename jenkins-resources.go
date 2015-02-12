@@ -406,11 +406,11 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 			var nextJobsTemplates []string
 			var nextManualJobsTemplate string
 			if stageJobCnt == len(stage.Jobs)-1 { // last job in stage uses explict next-jobs
-				nextJobsTemplates = conf.nextJobTemplatesForStage(stage.NextStages, true)
+				nextJobsTemplates = append(conf.nextJobTemplatesForStage(stage.NextStages, true), job.DownstreamJobs...)
 				nextManualJobsTemplate = strings.Join(conf.nextJobTemplatesForStage(stage.NextManualStages, false), ",")
 			} else { // set next job in stage
 				if !conf.isManualStage(stage.Name) { // jobs within a manual stage don't have successors as they are all manual
-					nextJobsTemplates = []string{createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])}
+					nextJobsTemplates = append([]string{createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])}, job.DownstreamJobs...)
 				}
 			}
 

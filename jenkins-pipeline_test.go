@@ -123,7 +123,7 @@ func TestPipelineCreation(t *testing.T) {
 		{"job0 git url", "http://github.com/kesselborn/tuev", jp.resources[0].(jenkinsSingleJob).GitURL},
 		{"job0 git branch is set to master", "master", jp.resources[0].(jenkinsSingleJob).BranchSpecifier},
 		{"job0 slave label", "master", jp.resources[0].(jenkinsSingleJob).SlaveLabel},
-		{"job0 nextJobs", []string{"~{{ .PipelineName }}.01.stage0.job1"}, jp.resources[0].(jenkinsSingleJob).NextJobs},
+		{"job0 nextJobs", []string{"~{{ .PipelineName }}.01.stage0.job1", "downstreamjob1"}, jp.resources[0].(jenkinsSingleJob).NextJobs},
 		{"job0 manualNextJobs", "", jp.resources[0].(jenkinsSingleJob).NextManualJobs},
 		{"job0 workingDir", "subdir/.*", jp.resources[0].(jenkinsSingleJob).WorkingDir},
 		{"job0 upstream jobs", "upstreamjob1,upstreamjob2", jp.resources[0].(jenkinsSingleJob).UpstreamJobs},

@@ -3,7 +3,7 @@
         {
             "name": "stage0",
             "jobs": [
-                { "job0": {"cmd": "echo 'job0'; mv spec spec2", "artifact": "spec2/", "upstream-jobs": ["upstreamjob1", "upstreamjob2"] } },
+                { "job0": {"cmd": "echo 'job0'; mv spec spec2", "artifact": "spec2/", "upstream-jobs": ["upstreamjob1", "upstreamjob2"], "downstream-jobs": ["downstreamjob1"] } },
                 { "job1": "echo 'job1'; find ." }
             ],
             "next-stages": [ "stage1" ]
