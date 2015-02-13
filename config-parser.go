@@ -82,6 +82,10 @@ func createProjectNameTempl(jobCnt int, stageName string, job configJob) string 
 	return fmt.Sprintf("~{{ .PipelineName }}.%02d.%s.%s", jobCnt, stageName, job.taskName())
 }
 
+func escape(s string) string {
+	return strings.Replace(s, "&", "&amp;", -1)
+}
+
 // UnmarshalJSON correctly creates a configJob which can represent one job or a multijob
 func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 	var data interface{}
@@ -97,7 +101,7 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 			switch valueType := value.(type) {
 			case string: // normal job
 				cj.Label = key
-				cj.Cmd = value.(string)
+				cj.Cmd = escape(value.(string))
 			case map[string]interface{}: // extended job hash
 				cj.Label = key
 				for jkey, jvalue := range value.(map[string]interface{}) {
@@ -105,7 +109,7 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 					case string:
 						switch jkey {
 						case "cmd":
-							cj.Cmd = jvalue.(string)
+							cj.Cmd = escape(jvalue.(string))
 						case "artifact":
 							cj.Artifact = jvalue.(string)
 						}

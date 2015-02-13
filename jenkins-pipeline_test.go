@@ -152,6 +152,8 @@ func TestPipelineCreation(t *testing.T) {
 		{"job12 stage name", "|>| stage4", jp.resources[13].(jenkinsSingleJob).StageName},
 		{"job12 does not have next job as it is in manual stage", 0, len(jp.resources[13].(jenkinsSingleJob).NextJobs)},
 
+		{"job14 escapes ampersands in cmd field correctly", "\n# change to working dir:\ncd subdir\n\n\n# job setup\nexport VAR=foobar\n\n# job\necho 'job14' &amp;&amp; ls", jp.resources[14].(jenkinsSingleJob).Command},
+
 		{"pipeline projectName", "test-project", pipelineViewEndPoint},
 	}.Run(t)
 }

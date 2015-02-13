@@ -49,7 +49,7 @@
         {
             "name": "stage5",
             "jobs": [
-                { "job14": "echo 'job14'" },
+                { "job14": "echo 'job14' && ls" },
                 { "job15": "echo 'job15'" }
             ]
         }
