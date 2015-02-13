@@ -120,9 +120,13 @@ func (jp JenkinsPipeline) UpdatePipeline(pipelineName string) (string, error) {
 				src = debugDumbContent(projectName, src)
 
 				info("update\t%s\n", cur["url"]+"config.xml")
-				_, err = http.Post(cur["url"]+"config.xml", "application/xml", src)
+
+				resp, err := http.Post(cur["url"]+"config.xml", "application/xml", src)
 				if err != nil {
 					return "", err
+				}
+				if httpErr := checkResponse(resp); httpErr != nil {
+					return "", httpErr
 				}
 			} else { // create new resource
 				info("create\t%s\n", string(jp.JenkinsServer)+"/job/"+projectName)

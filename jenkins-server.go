@@ -29,17 +29,46 @@ type jenkinsJobList struct {
 	Jobs []jenkinsServerJob
 }
 
-func (js JenkinsServer) createJob(jobName string, content io.Reader) error {
-	_, err := http.Post(string(js)+"/createItem?name="+jobName, "application/xml", content)
+func checkResponse(resp *http.Response) error {
+	if resp.StatusCode >= 400 {
+		f, err := ioutil.TempFile("", "errormsg.html")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error creating dump of error response: %s\n", err.Error())
+			os.Exit(1)
+		}
+		defer f.Close()
+		contentInBytes, err := ioutil.ReadAll(resp.Body)
+		_, err = f.Write(contentInBytes)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error dumping error response: %s\n", err.Error())
+			os.Exit(2)
+		}
 
-	return err
+		debug("an error occured while speaking with jenkins, the error html messag was dumped to: %s\n", f.Name())
+		return fmt.Errorf("an error occured while speaking with jenkins, the error html messag was dumped to: %s\n", f.Name())
+	}
+	return nil
+}
+
+func (js JenkinsServer) createJob(jobName string, content io.Reader) error {
+	resp, err := http.Post(string(js)+"/createItem?name="+jobName, "application/xml", content)
+	if err != nil {
+		return err
+	}
+
+	return checkResponse(resp)
 }
 
 func (js JenkinsServer) createView(viewName string, content io.Reader) error {
-	_, err := http.Post(string(js)+"/createView?name="+viewName, "application/xml", content)
+	resp, err := http.Post(string(js)+"/createView?name="+viewName, "application/xml", content)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	return checkResponse(resp)
 }
+
 func (js JenkinsServer) jobURL(jobName string) string {
 	return string(js) + "/job/" + jobName
 }
