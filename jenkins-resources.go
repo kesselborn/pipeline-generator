@@ -6,7 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"text/template"
 )
@@ -115,6 +117,8 @@ func (jp JenkinsPipeline) UpdatePipeline(pipelineName string) (string, error) {
 					return "", err
 				}
 
+				src = debugDumbContent(projectName, src)
+
 				info("update\t%s\n", cur["url"]+"config.xml")
 				_, err = http.Post(cur["url"]+"config.xml", "application/xml", src)
 				if err != nil {
@@ -196,8 +200,30 @@ func (jmj jenkinsMultiJob) createResource(js JenkinsServer, pipelineName string)
 	if err != nil {
 		return err
 	}
+	src = debugDumbContent(projectName, src)
 
 	return js.createJob(projectName, src)
+}
+
+func debugDumbContent(name string, content io.Reader) io.Reader {
+	if debugMode() {
+		f, err := ioutil.TempFile("", "__"+name+".xml__")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error creating xml dump for debugging: %s\n", err.Error())
+			os.Exit(1)
+		}
+		defer f.Close()
+		contentInBytes, err := ioutil.ReadAll(content)
+		_, err = f.Write(contentInBytes)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error creating xml dump for debugging: %s\n", err.Error())
+			os.Exit(2)
+		}
+		content = strings.NewReader(string(contentInBytes))
+		debug("dumped config.xml for '%s' to %s\n", name, f.Name())
+	}
+
+	return content
 }
 
 func (jj jenkinsSingleJob) createResource(js JenkinsServer, pipelineName string) error {
@@ -210,6 +236,7 @@ func (jj jenkinsSingleJob) createResource(js JenkinsServer, pipelineName string)
 	if err != nil {
 		return err
 	}
+	src = debugDumbContent(projectName, src)
 
 	return js.createJob(projectName, src)
 }
@@ -219,6 +246,7 @@ func (jpv jenkinsPipelineView) createResource(js JenkinsServer, pipelineName str
 	if err != nil {
 		return err
 	}
+	src = debugDumbContent(pipelineName+"_view", src)
 
 	return js.createView(pipelineName, src)
 }

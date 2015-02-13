@@ -11,6 +11,10 @@ var InfoLogger io.Writer
 // DebugLogger will receive debug level messages if set (use os.Stderr / os.Stdout for console output)
 var DebugLogger io.Writer
 
+func debugMode() bool {
+	return DebugLogger != nil
+}
+
 func info(format string, a ...interface{}) (n int, err error) {
 	if InfoLogger == nil {
 		return 0, nil
