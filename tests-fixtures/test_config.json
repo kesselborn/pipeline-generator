@@ -36,20 +36,20 @@
                     { "job10": {"cmd": "echo 'job10'", "artifact": "art1"} },
                     { "job11": {"cmd": "echo 'job11'", "artifact": "art2"} }
                 ],
-                { "job12": "echo notify" }
+                { "job12": {"cmd": "echo notify", "manual": true }}
             ],
-            "next-manual-stages": [ "stage4", "stage5" ]
+            "next-stages": [ "stage4", "stage5" ]
         },
         {
             "name": "stage4",
             "jobs": [
-                { "job13": "echo 'job13'" }
+                { "job13": {"cmd": "echo 'job13'", "manual": true} }
             ]
         },
         {
             "name": "stage5",
             "jobs": [
-                { "job14": "echo 'job14' && ls" },
+                { "job14": {"cmd": "echo 'job14' && ls", "manual": true} },
                 { "job15": "echo 'job15'" }
             ]
         }

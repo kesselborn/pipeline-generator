@@ -61,14 +61,11 @@ func TestStagesParsing(t *testing.T) {
 		{"stage0 name", "stage0", testConfigFile().Stages[0].Name},
 		{"stage0 num of jobs", 2, len(testConfigFile().Stages[0].Jobs)},
 		{"stage0 num of next-stages", 1, len(testConfigFile().Stages[0].NextStages)},
-		{"stage0 num of next-manual-stages", 0, len(testConfigFile().Stages[0].NextManualStages)},
 
 		{"stage2 name", "stage2", testConfigFile().Stages[2].Name},
 		{"stage2 has one job", 1, len(testConfigFile().Stages[2].Jobs)},
 		{"stage2's job is a multijob", true, testConfigFile().Stages[2].Jobs[0].isMultiJob()},
 		{"stage2's multijob has two sub jobs", 2, len(testConfigFile().Stages[2].Jobs[0].SubJobs)},
-
-		{"stage3 num of next-manual-stages", 2, len(testConfigFile().Stages[3].NextManualStages)},
 	}.Run(t)
 }
 
@@ -82,13 +79,13 @@ func TestSettingsValidations(t *testing.T) {
 	_, emptyGitURL := jenkinsConfigFromString(`{"settings":{"jenkins-server": "http://jenkins:8080", "git-url": ""}}`)
 
 	expectations{
-		{"raises error when settings is missing", ErrSettingsMissing, noSettingsErr},
+		{"raises error when settings is missing", errSettingsMissing, noSettingsErr},
 
-		{"raises error when jenkins-server is missing", ErrJenkinsServerMissing, noJenkinsServer},
-		{"raises error when jenkins-server is empty", ErrJenkinsServerMissing, emptyJenkinsServer},
+		{"raises error when jenkins-server is missing", errJenkinsServerMissing, noJenkinsServer},
+		{"raises error when jenkins-server is empty", errJenkinsServerMissing, emptyJenkinsServer},
 
-		{"raises error when git-url is missing", ErrGitURLMissing, noGitURL},
-		{"raises error when git-url is empty", ErrGitURLMissing, emptyGitURL},
+		{"raises error when git-url is missing", errGitURLMissing, noGitURL},
+		{"raises error when git-url is empty", errGitURLMissing, emptyGitURL},
 	}.Run(t)
 }
 
@@ -101,12 +98,21 @@ func TestSingleJobCreation(t *testing.T) {
 	}.Run(t)
 }
 
+func TestManualOptionInMultiJobFails(t *testing.T) {
+	_, err := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [[{"foo2":{"cmd": "bar", "manual": true}},{"foo":"bar"}]]}], "settings":{"jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
+
+	expectations{
+		{"should raise error", errManualTriggerInMultiJob, err},
+	}.Run(t)
+}
+
 func TestPipelineCreation(t *testing.T) {
 	jp, err := jenkinsConfigFromFile("tests-fixtures/test_config.json")
 	defaultName, _ := jp.DefaultName()
 
 	job1EndPoint, job1EndPointError := jp.resources[1].projectName("test-project")
 	pipelineViewEndPoint, pipelineViewEndPointError := jp.resources[16].projectName("test-project")
+	fmt.Printf("%#v", jp.resources[9])
 	expectations{
 		{"no parsing error happened", nil, err},
 		{"endpoint rendering for job1 worked", nil, job1EndPointError},
@@ -145,11 +151,11 @@ func TestPipelineCreation(t *testing.T) {
 		{"job7 does not clean workspace", false, jp.resources[7].(jenkinsSingleJob).CleanWorkspace},
 		{"job8 does clean workspace", true, jp.resources[8].(jenkinsSingleJob).CleanWorkspace},
 
-		{"job9 multi job has successor", 1, len(jp.resources[9].(jenkinsMultiJob).NextJobs)},
+		{"job9 nextManualJobs", "~{{ .PipelineName }}.12.stage3.job12", jp.resources[9].(jenkinsMultiJob).NextManualJobs},
 
-		{"job12 nextManualJobs", "~{{ .PipelineName }}.13.stage4.job13,~{{ .PipelineName }}.14.stage5.job14,~{{ .PipelineName }}.15.stage5.job15", jp.resources[12].(jenkinsSingleJob).NextManualJobs},
+		{"job12 nextManualJobs", "~{{ .PipelineName }}.13.stage4.job13,~{{ .PipelineName }}.14.stage5.job14", jp.resources[12].(jenkinsSingleJob).NextManualJobs},
 
-		{"job12 stage name", "|>| stage4", jp.resources[13].(jenkinsSingleJob).StageName},
+		{"job12 stage name", "stage4", jp.resources[13].(jenkinsSingleJob).StageName},
 		{"job12 does not have next job as it is in manual stage", 0, len(jp.resources[13].(jenkinsSingleJob).NextJobs)},
 
 		{"job14 escapes ampersands in cmd field correctly", "\n# change to working dir:\ncd subdir\n\n\n# job setup\nexport VAR=foobar\n\n# job\necho 'job14' &amp;&amp; ls", jp.resources[14].(jenkinsSingleJob).Command},

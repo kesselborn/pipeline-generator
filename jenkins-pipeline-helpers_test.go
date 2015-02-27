@@ -78,7 +78,7 @@ func ExpectationErrorf(file string, line int, ok bool, t *testing.T, format stri
 		file = "???"
 		line = 1
 	}
-	decoratedFormat := fmt.Sprintf("\t\033[1;31;48m%s:%d: %s\033[m\n", file, line, format)
+	decoratedFormat := fmt.Sprintf("\t%s:%d: \033[1;31;48m%s\033[m\n", file, line, format)
 
 	fmt.Fprintf(os.Stderr, decoratedFormat, a...)
 	t.Fail()

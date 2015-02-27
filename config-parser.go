@@ -3,8 +3,13 @@ package pipeline
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
+)
+
+var (
+	errManualTriggerInMultiJob = errors.New("a job that is part of a multi job can not set to be triggered manually")
 )
 
 type configFile struct {
@@ -12,31 +17,20 @@ type configFile struct {
 	Settings map[string]string `json:"settings"`
 }
 
-func (c configFile) isManualStage(stageName string) bool {
-	var manualStages []string
-	for _, stage := range c.Stages {
-		manualStages = append(manualStages, stage.NextManualStages...)
-		for _, manualStage := range stage.NextManualStages {
-			if stageName == manualStage {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-func (c configFile) nextJobTemplatesForStage(stageNames []string, onlyFirstJob bool) []string {
+func (c configFile) nextJobTemplatesForStage(stageNames []string, triggeredManually bool) []string {
 	nextJobTemplates := []string{}
 	for _, stageName := range stageNames {
 		jobCnt := 0
 		for _, stage := range c.Stages {
-			for i, job := range stage.Jobs {
-				if stage.Name == stageName {
-					if i == 0 || onlyFirstJob == false {
-						nextJobTemplates = append(nextJobTemplates, createProjectNameTempl(jobCnt, stageName, job))
-					}
+			if stage.Name == stageName {
+				firstJob := stage.Jobs[0]
+				if triggeredManually && firstJob.TriggeredManually {
+					nextJobTemplates = append(nextJobTemplates, createProjectNameTempl(jobCnt, stageName, firstJob))
+				} else if !triggeredManually && !firstJob.TriggeredManually {
+					nextJobTemplates = append(nextJobTemplates, createProjectNameTempl(jobCnt, stageName, firstJob))
 				}
+			}
+			for _, job := range stage.Jobs {
 				jobCnt += 1 + len(job.SubJobs)
 			}
 		}
@@ -46,20 +40,20 @@ func (c configFile) nextJobTemplatesForStage(stageNames []string, onlyFirstJob b
 }
 
 type configStage struct {
-	Name             string      `json:"name"`
-	Jobs             []configJob `json:"jobs"`
-	NextStages       []string    `json:"next-stages"`
-	NextManualStages []string    `json:"next-manual-stages"`
+	Jobs       []configJob `json:"jobs"`
+	Name       string      `json:"name"`
+	NextStages []string    `json:"next-stages"`
 }
 
 type configJob struct {
-	Label          string
-	Cmd            string
-	Artifact       string
-	NoClean        bool
-	SubJobs        []configJob
-	UpstreamJobs   []string
-	DownstreamJobs []string
+	Artifact          string
+	Cmd               string
+	DownstreamJobs    []string
+	Label             string
+	NoClean           bool
+	SubJobs           []configJob
+	TriggeredManually bool
+	UpstreamJobs      []string
 }
 
 func (cj configJob) taskName() string {
@@ -117,6 +111,8 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 						switch jkey {
 						case "no-clean":
 							cj.NoClean = jvalue.(bool)
+						case "manual":
+							cj.TriggeredManually = jvalue.(bool)
 						}
 					case []interface{}:
 						switch jkey {
@@ -151,6 +147,10 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 			err = job.UnmarshalJSON(subJobData)
 			if err != nil {
 				return err
+			}
+
+			if job.TriggeredManually {
+				return errManualTriggerInMultiJob
 			}
 
 			cj.SubJobs = append(cj.SubJobs, job)

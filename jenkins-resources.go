@@ -14,14 +14,9 @@ import (
 )
 
 var (
-	// ErrSettingsMissing gets thrown if the settings section if missing in the config file
-	ErrSettingsMissing = errors.New("settings section is missing in the pipeline configuration")
-
-	// ErrJenkinsServerMissing gets thrown if settings/jenkins-server is missing in the pipeline configuration
-	ErrJenkinsServerMissing = errors.New("settings/jenkins-server is missing in the pipeline configuration")
-
-	// ErrGitURLMissing gets thrown if settings/git-url is missing in the pipeline configuration
-	ErrGitURLMissing = errors.New("settings/git-url is missing in the pipeline configuration")
+	errGitURLMissing        = errors.New("settings/git-url is missing in the pipeline configuration")
+	errSettingsMissing      = errors.New("settings section is missing in the pipeline configuration")
+	errJenkinsServerMissing = errors.New("settings/jenkins-server is missing in the pipeline configuration")
 )
 
 type jenkinsResource interface {
@@ -355,9 +350,6 @@ func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage conf
 		},
 		SubJobs: subJobsTemplates,
 	}
-	if conf.isManualStage(stage.Name) {
-		jenkinsMultiJob.StageName = "|>| " + jenkinsMultiJob.StageName
-	}
 
 	return jenkinsMultiJob, subJobs
 }
@@ -392,10 +384,6 @@ func newJenkinsJob(conf configFile, job configJob, setup string, stage configSta
 		jenkinsJob.BranchSpecifier = "master"
 	}
 
-	if conf.isManualStage(stage.Name) {
-		jenkinsJob.StageName = "|>| " + jenkinsJob.StageName
-	}
-
 	return jenkinsJob
 }
 
@@ -408,15 +396,19 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 	var pipeline JenkinsPipeline
 	err := json.NewDecoder(bytes.NewReader(jsonString)).Decode(&conf)
 
+	if err != nil {
+		return err
+	}
+
 	js, jenkinsServerPresent := conf.Settings["jenkins-server"]
 	gitURL, gitURLPresent := conf.Settings["git-url"]
 	switch {
 	case len(conf.Settings) == 0:
-		return ErrSettingsMissing
+		return errSettingsMissing
 	case jenkinsServerPresent != true || js == "":
-		return ErrJenkinsServerMissing
+		return errJenkinsServerMissing
 	case gitURLPresent != true || gitURL == "":
-		return ErrGitURLMissing
+		return errGitURLMissing
 	}
 
 	pipeline.JenkinsServer = JenkinsServer(js)
@@ -442,10 +434,14 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 			var nextJobsTemplates []string
 			var nextManualJobsTemplate string
 			if stageJobCnt == len(stage.Jobs)-1 { // last job in stage uses explict next-jobs
-				nextJobsTemplates = append(conf.nextJobTemplatesForStage(stage.NextStages, true), job.DownstreamJobs...)
-				nextManualJobsTemplate = strings.Join(conf.nextJobTemplatesForStage(stage.NextManualStages, false), ",")
-			} else { // set next job in stage
-				if !conf.isManualStage(stage.Name) { // jobs within a manual stage don't have successors as they are all manual
+				nextJobsTemplates = append(conf.nextJobTemplatesForStage(stage.NextStages, false), job.DownstreamJobs...)
+				nextManualJobsTemplate = strings.Join(conf.nextJobTemplatesForStage(stage.NextStages, true), ",")
+			} else {
+				nextJob := stage.Jobs[stageJobCnt+1]
+				if nextJob.TriggeredManually {
+					nextJobsTemplates = job.DownstreamJobs
+					nextManualJobsTemplate = createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])
+				} else {
 					nextJobsTemplates = append([]string{createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])}, job.DownstreamJobs...)
 				}
 			}
