@@ -151,6 +151,10 @@ func (jp JenkinsPipeline) UpdatePipeline(pipelineName string) (string, error) {
 
 	err = jp.JenkinsServer.SetBuildNumber(pipelineName, buildNum+1)
 
+	if len(jp.resources) == 1 {
+		return jp.JenkinsServer.jobURL(pipelineName), nil
+	}
+
 	return jp.JenkinsServer.viewURL(pipelineName), nil
 
 }
