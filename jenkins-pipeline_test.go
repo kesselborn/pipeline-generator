@@ -162,6 +162,7 @@ func TestPipelineCreation(t *testing.T) {
 		{"job9 nextManualJobs", "~{{ .PipelineName }}.12.stage3.job12", jp.resources[9].(jenkinsMultiJob).NextManualJobs},
 
 		{"job12 nextManualJobs", "~{{ .PipelineName }}.13.stage4.job13,~{{ .PipelineName }}.14.stage5.job14", jp.resources[12].(jenkinsSingleJob).NextManualJobs},
+		{"job12 name contains manual trigger prefix", "|>| job12", jp.resources[12].(jenkinsSingleJob).TaskName},
 
 		{"job12 stage name", "stage4", jp.resources[13].(jenkinsSingleJob).StageName},
 		{"job12 does not have next job as it is in manual stage", 0, len(jp.resources[13].(jenkinsSingleJob).NextJobs)},

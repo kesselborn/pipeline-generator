@@ -384,6 +384,10 @@ func newJenkinsJob(conf configFile, job configJob, setup string, stage configSta
 		jenkinsJob.BranchSpecifier = "master"
 	}
 
+	if job.TriggeredManually {
+		jenkinsJob.TaskName = "|>| " + jenkinsJob.TaskName
+	}
+
 	return jenkinsJob
 }
 
