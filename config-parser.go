@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	errManualTriggerInMultiJob = errors.New("a job that is part of a multi job can not set to be triggered manually")
+	errManualTriggerInMultiJob    = errors.New("a job that is part of a multi job can not set to be triggered manually")
+	errNextManualStagesDeprecated = errors.New("next-manual-stages setting is deprecated, please adjust your pipeline configuration according to http://git.io/xYoE")
 )
 
 type configFile struct {
@@ -39,10 +40,13 @@ func (c configFile) nextJobTemplatesForStage(stageNames []string, triggeredManua
 	return nextJobTemplates
 }
 
+type deprManStages []string
+
 type configStage struct {
-	Jobs       []configJob `json:"jobs"`
-	Name       string      `json:"name"`
-	NextStages []string    `json:"next-stages"`
+	Jobs             []configJob   `json:"jobs"`
+	Name             string        `json:"name"`
+	NextStages       []string      `json:"next-stages"`
+	NextManualStages deprManStages `json:"next-manual-stages"`
 }
 
 type configJob struct {
@@ -78,6 +82,11 @@ func createProjectNameTempl(jobCnt int, stageName string, job configJob) string 
 
 func escape(s string) string {
 	return strings.Replace(s, "&", "&amp;", -1)
+}
+
+// UnmarshalJSON correctly creates a configJob which can represent one job or a multijob
+func (_ *deprManStages) UnmarshalJSON(jsonString []byte) error {
+	return errNextManualStagesDeprecated
 }
 
 // UnmarshalJSON correctly creates a configJob which can represent one job or a multijob

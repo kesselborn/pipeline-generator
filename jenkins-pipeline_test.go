@@ -106,6 +106,14 @@ func TestManualOptionInMultiJobFails(t *testing.T) {
 	}.Run(t)
 }
 
+func TestDeprecatedManualStagesFails(t *testing.T) {
+	_, err := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [{"foo":"bar"}], "next-manual-stages": ["foo2"]},{"name": "foo2", "jobs":[{"foo":"bar"}]}], "settings":{"jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
+
+	expectations{
+		{"should raise error", errNextManualStagesDeprecated, err},
+	}.Run(t)
+}
+
 func TestPipelineCreation(t *testing.T) {
 	jp, err := jenkinsConfigFromFile("tests-fixtures/test_config.json")
 	defaultName, _ := jp.DefaultName()
