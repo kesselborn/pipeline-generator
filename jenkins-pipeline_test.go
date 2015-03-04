@@ -98,6 +98,22 @@ func TestSingleJobCreation(t *testing.T) {
 	}.Run(t)
 }
 
+func TestNotificationSetting(t *testing.T) {
+	pipeline1, err1 := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [{"foo":"bar"}]}], "settings":{"silent": true, "jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
+	pipeline2, err2 := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [{"foo":"bar"}]}], "settings":{"jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
+	pipeline3, err3 := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [{"foo":"bar"}]}], "settings":{"silent": false, "jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
+
+	expectations{
+		{"ppl1 should raise no error", nil, err1},
+		{"ppl1 should not notify", false, pipeline1.resources[0].(jenkinsSingleJob).Notify},
+
+		{"ppl2 should raise no error", nil, err2},
+		{"ppl2 should not notify", true, pipeline2.resources[0].(jenkinsSingleJob).Notify},
+		{"ppl3 should raise no error", nil, err3},
+		{"ppl3 should not notify", true, pipeline3.resources[0].(jenkinsSingleJob).Notify},
+	}.Run(t)
+}
+
 func TestManualOptionInMultiJobFails(t *testing.T) {
 	_, err := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [[{"foo2":{"cmd": "bar", "manual": true}},{"foo":"bar"}]]}], "settings":{"jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
 
@@ -120,7 +136,6 @@ func TestPipelineCreation(t *testing.T) {
 
 	job1EndPoint, job1EndPointError := jp.resources[1].projectName("test-project")
 	pipelineViewEndPoint, pipelineViewEndPointError := jp.resources[16].projectName("test-project")
-	fmt.Printf("%#v", jp.resources[9])
 	expectations{
 		{"no parsing error happened", nil, err},
 		{"endpoint rendering for job1 worked", nil, job1EndPointError},
@@ -130,6 +145,7 @@ func TestPipelineCreation(t *testing.T) {
 
 		{"parsed all resources", 17, len(jp.resources)},
 		{"job0 name", "job0", jp.resources[0].(jenkinsSingleJob).TaskName},
+		{"job0 notify", true, jp.resources[0].(jenkinsSingleJob).Notify},
 		{"job0 IsInitialJob", true, jp.resources[0].(jenkinsSingleJob).IsInitialJob},
 		{"job0 projectNameFmt", "{{ .PipelineName }}", jp.resources[0].(jenkinsSingleJob).ProjectNameTempl},
 		{"job0 stage name", "stage0", jp.resources[0].(jenkinsSingleJob).StageName},

@@ -165,11 +165,13 @@ git reset --hard ${GIT_SHA}{{ end }}
     </hudson.tasks.Shell>
   </builders>
   <publishers>
+    {{ if .Notify }}
     <hudson.tasks.Mailer plugin="mailer@1.10">
       <recipients/>
       <dontNotifyEveryUnstableBuild>true</dontNotifyEveryUnstableBuild>
       <sendToIndividuals>true</sendToIndividuals>
     </hudson.tasks.Mailer>
+    {{ end }}
     {{ if .Artifact }}
     <hudson.tasks.ArtifactArchiver>
       <artifacts>{{ .Artifact }}</artifacts>

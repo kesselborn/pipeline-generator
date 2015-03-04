@@ -58,6 +58,7 @@ type jenkinsSingleJob struct {
 	SlaveLabel      string
 	WorkingDir      string
 	UpstreamJobs    string
+	Notify          bool
 }
 
 type jenkinsMultiJob struct {
@@ -325,14 +326,14 @@ func (jpv jenkinsPipelineView) projectName(pipelineName string) (string, error) 
 	return b.String(), nil
 }
 
-func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates []string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int) (jenkinsMultiJob, []jenkinsSingleJob) {
+func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates []string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) (jenkinsMultiJob, []jenkinsSingleJob) {
 	projectNameTempl := []string{createProjectNameTempl(jobCnt, stage.Name, job)}
 	var subJobs []jenkinsSingleJob
 	var subJobsTemplates []string
 
 	for _, subJob := range job.SubJobs {
 		jobCnt++
-		jenkinsJob := newJenkinsJob(conf, subJob, setup, stage, []string{}, "", stageJobCnt, jobCnt)
+		jenkinsJob := newJenkinsJob(conf, subJob, setup, stage, []string{}, "", stageJobCnt, jobCnt, notify)
 		jenkinsJob.IsSubJob = true
 		jenkinsJob.TaskName = "---- " + jenkinsJob.TaskName // indent sub jobs
 		subJobs = append(subJobs, jenkinsJob)
@@ -354,7 +355,7 @@ func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage conf
 	return jenkinsMultiJob, subJobs
 }
 
-func newJenkinsJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates []string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int) jenkinsSingleJob {
+func newJenkinsJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates []string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) jenkinsSingleJob {
 	projectNameTempl := createProjectNameTempl(jobCnt, stage.Name, job)
 
 	gitBranch, gitBranchPresent := conf.Settings["git-branch"]
@@ -371,15 +372,19 @@ func newJenkinsJob(conf configFile, job configJob, setup string, stage configSta
 			CleanWorkspace:   !job.NoClean,
 			NextManualJobs:   nextManualJobsTemplate,
 		},
+		Notify:       notify,
 		Artifact:     job.Artifact,
-		GitURL:       gitURL,
+		GitURL:       gitURL.(string),
 		Command:      command,
-		SlaveLabel:   conf.Settings["slave-label"],
 		UpstreamJobs: strings.Join(job.UpstreamJobs, ","),
 	}
 
+	if slaveLabel, slaveLabelPresent := conf.Settings["slave-label"]; slaveLabelPresent {
+		jenkinsJob.SlaveLabel = slaveLabel.(string)
+	}
+
 	if gitBranchPresent {
-		jenkinsJob.BranchSpecifier = gitBranch
+		jenkinsJob.BranchSpecifier = gitBranch.(string)
 	} else {
 		jenkinsJob.BranchSpecifier = "master"
 	}
@@ -404,32 +409,38 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 		return err
 	}
 
-	js, jenkinsServerPresent := conf.Settings["jenkins-server"]
-	gitURL, gitURLPresent := conf.Settings["git-url"]
+	_js, jenkinsServerPresent := conf.Settings["jenkins-server"]
+	_gitURL, gitURLPresent := conf.Settings["git-url"]
 	switch {
 	case len(conf.Settings) == 0:
 		return errSettingsMissing
-	case jenkinsServerPresent != true || js == "":
+	case jenkinsServerPresent != true || _js.(string) == "":
 		return errJenkinsServerMissing
-	case gitURLPresent != true || gitURL == "":
+	case gitURLPresent != true || _gitURL.(string) == "":
 		return errGitURLMissing
+	}
+	js := _js.(string)
+
+	notify := true
+	if _silent, silentPresent := conf.Settings["silent"]; silentPresent {
+		notify = !_silent.(bool)
 	}
 
 	pipeline.JenkinsServer = JenkinsServer(js)
 
 	var setup string
 	if _setup, present := conf.Settings["job-setup"]; present == true {
-		setup = "\n# job setup\n" + _setup + "\n\n"
+		setup = "\n# job setup\n" + _setup.(string) + "\n\n"
 	}
 
 	if defaultName, present := conf.Settings["default-name"]; present == true {
-		pipeline.defaultName = defaultName
+		pipeline.defaultName = defaultName.(string)
 	}
 
 	var workingDir string
 	if _workindDir, present := conf.Settings["working-dir"]; present == true {
-		workingDir = _workindDir + "/.*"
-		setup = "\n# change to working dir:\ncd " + _workindDir + "\n\n" + setup
+		workingDir = _workindDir.(string) + "/.*"
+		setup = "\n# change to working dir:\ncd " + _workindDir.(string) + "\n\n" + setup
 	}
 
 	jobCnt := 0
@@ -451,7 +462,7 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 			}
 
 			if job.isMultiJob() == true {
-				multijob, subJobs := newJenkinsMultiJob(conf, job, setup, stage, nextJobsTemplates, nextManualJobsTemplate, stageJobCnt, jobCnt)
+				multijob, subJobs := newJenkinsMultiJob(conf, job, setup, stage, nextJobsTemplates, nextManualJobsTemplate, stageJobCnt, jobCnt, notify)
 
 				pipeline.resources = append(pipeline.resources, multijob)
 				for _, subJob := range subJobs {
@@ -460,7 +471,7 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 
 				jobCnt += 1 + len(subJobs)
 			} else {
-				jenkinsJob := newJenkinsJob(conf, job, setup, stage, nextJobsTemplates, nextManualJobsTemplate, stageJobCnt, jobCnt)
+				jenkinsJob := newJenkinsJob(conf, job, setup, stage, nextJobsTemplates, nextManualJobsTemplate, stageJobCnt, jobCnt, notify)
 
 				if jobCnt == 0 { // first job gets a nice name + polls git repo
 					jenkinsJob.ProjectNameTempl = "{{ .PipelineName }}"

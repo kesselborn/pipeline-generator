@@ -14,8 +14,8 @@ var (
 )
 
 type configFile struct {
-	Stages   []configStage     `json:"stages"`
-	Settings map[string]string `json:"settings"`
+	Stages   []configStage          `json:"stages"`
+	Settings map[string]interface{} `json:"settings"`
 }
 
 func (c configFile) nextJobTemplatesForStage(stageNames []string, triggeredManually bool) []string {
