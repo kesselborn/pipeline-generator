@@ -281,7 +281,7 @@ func (jpv jenkinsPipelineView) renderResource(pipelineName string) (io.Reader, e
 }
 
 func render(templName string, templ1Data interface{}, pipelineName string) (io.Reader, error) {
-	templateSrc, err := asset(templName)
+	templateSrc, err := Asset(templName)
 	if err != nil {
 		return nil, err
 	}

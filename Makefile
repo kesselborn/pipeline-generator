@@ -1,4 +1,4 @@
-test: checks
+test: bindata.go checks
 	go test -v . && printf "\033[1;32;42m               \033[m\033[1;32;48m OK \033[1;32;42m               \033[m\n" || printf "\033[1;31;41m               \033[m\033[1;31;48m EPIC FAIL \033[1;31;41m                 \033[m\n"
 
 build: bindata.go
@@ -6,8 +6,6 @@ build: bindata.go
 
 bindata.go: deps templates/* templates/*/*
 	$(GOPATH)/bin/go-bindata -pkg="pipeline" -o="bindata.go" templates/ templates/jenkins
-	# make bindata functions private
-	sed -i "" 's/func Asset/func asset/g' $@
 	go fmt .
 
 checks: deps
@@ -23,4 +21,4 @@ deps:
 example: *.go
 	go build -o ppl-example ./example
 
-.PHONY: check
+.PHONY: check bindata.go
