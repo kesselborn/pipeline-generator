@@ -1,4 +1,4 @@
-test: bindata.go checks
+test: checks
 	go test -v . && printf "\033[1;32;42m               \033[m\033[1;32;48m OK \033[1;32;42m               \033[m\n" || printf "\033[1;31;41m               \033[m\033[1;31;48m EPIC FAIL \033[1;31;41m                 \033[m\n"
 
 build: bindata.go
