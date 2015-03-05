@@ -64,12 +64,12 @@ looks as follows:
                     ],
                     { "job12": "echo notify" }
                 ],
-                "next-manual-stages": [ "stage4", "stage5" ]
+                "next-stages": [ "stage4", "stage5" ]
             },
             {
                 "name": "stage4",
                 "jobs": [
-                    { "job13": "echo 'job13'" }
+                    { "job13": {"cmd": "echo 'job13'", "manual": true} }
                 ]
             },
             {
@@ -111,13 +111,14 @@ The stages section contains an array of stages declarations that contain the fol
 
       `no-clean`: if set to true, the workspace will not be cleaned before starting the job (default is to always clear workspace -- us this if you would like to cache dependencies or build artifacts between builds)
 
+      `manual` (bool): if set to true, this job needs to be triggered manually by a user using the jenkins ui -- if omitted or set to false, job gets triggered automatically by its upstream jobs
+
       - multi job: an array of simple or extended job declarations (see `stage1 / job4 & job5` in example above). Those jobs will be executed in parallel:
 
             [<simple-job-decl>,<ext-job-decl>,<simple-job-decl>, ...]
 
 
   - `next-stages` (optional): next stages to execute when this stage has been executed successfully
-  - `next-manual-stages` (optional): next stages that should be triggerable after this stage has been successfully executed. Note: if a stage is defined as as a next-manual-stage, all it's jobs can be triggered manually once this stage has been reached (as opposed to: job2 can be triggered only if job1 has been executed)
 
 
 ## settings section
