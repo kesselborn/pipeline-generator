@@ -129,6 +129,7 @@ This section contains global settings for the pipeline:
   - `git-url`: git url to the project that is to be built
   - `slave-label` (optional): only execute these jobs on jenkins slave with this label
   - `job-setup` (optional): before executing each job, execute the code provided here
+  - `silent` (optional): if set to true, don't send notification mails -- if omitted or false, sent mails
   - `default-name` (optional): optionally, define how your pipeline should be named here; this property will be available on 
   - `working-dir` (optional): only consider the given subdir: only builds if the subdir contains changes; changes into the subdir before executing anything, i.e. all commands are relativ to the subdir, not the repository's root
 
