@@ -38,13 +38,14 @@ type artifactDep struct {
 }
 
 type jenkinsJob struct {
-	IsInitialJob     bool
-	CleanWorkspace   bool
-	TaskName         string
-	ProjectNameTempl string
-	StageName        string
-	NextManualJobs   string
-	NextJobs         []string
+	IsInitialJob      bool
+	TriggeredManually bool
+	CleanWorkspace    bool
+	TaskName          string
+	ProjectNameTempl  string
+	StageName         string
+	NextManualJobs    string
+	NextJobs          []string
 }
 
 type jenkinsSingleJob struct {
@@ -391,6 +392,7 @@ func newJenkinsJob(conf configFile, job configJob, setup string, stage configSta
 
 	if job.TriggeredManually {
 		jenkinsJob.TaskName = "|>| " + jenkinsJob.TaskName
+		jenkinsJob.TriggeredManually = true
 	}
 
 	return jenkinsJob

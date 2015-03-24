@@ -144,7 +144,8 @@ func TestPipelineCreation(t *testing.T) {
 		{"default name", "my-funny-pipeline", defaultName},
 
 		{"parsed all resources", 17, len(jp.resources)},
-		{"job0 name", "job0", jp.resources[0].(jenkinsSingleJob).TaskName},
+		{"job0 name", "|>| job0", jp.resources[0].(jenkinsSingleJob).TaskName},
+		{"job0 manual", true, jp.resources[0].(jenkinsSingleJob).TriggeredManually},
 		{"job0 notify", true, jp.resources[0].(jenkinsSingleJob).Notify},
 		{"job0 IsInitialJob", true, jp.resources[0].(jenkinsSingleJob).IsInitialJob},
 		{"job0 projectNameFmt", "{{ .PipelineName }}", jp.resources[0].(jenkinsSingleJob).ProjectNameTempl},
@@ -195,7 +196,6 @@ func TestPipelineArtifactLogic(t *testing.T) {
 	expectations{
 		{"job0 artifact", "spec2/", jp.resources[0].(jenkinsSingleJob).Artifact},
 		{"job1 artifact dependency", []artifactDep{{"{{ .PipelineName }}", "spec2/"}}, jp.resources[1].(jenkinsSingleJob).ArtifactDep},
-
 		{"job2 artifact", "spec1/,spec2/", jp.resources[2].(jenkinsSingleJob).Artifact},
 		{"job4 artifact dependency", []artifactDep{{"~{{ .PipelineName }}.02.stage1.job2", "spec1/,spec2/"}}, jp.resources[4].(jenkinsSingleJob).ArtifactDep},
 		{"job5 artifact dependency", []artifactDep{{"~{{ .PipelineName }}.02.stage1.job2", "spec1/,spec2/"}}, jp.resources[5].(jenkinsSingleJob).ArtifactDep},

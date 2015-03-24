@@ -67,10 +67,12 @@
       </threshold>
     </jenkins.triggers.ReverseBuildTrigger>
     {{ end }}
+    {{ if .TriggeredManually }}{{ else }}
     <hudson.triggers.SCMTrigger>
       <spec>* * * * *</spec>
       <ignorePostCommitHooks>false</ignorePostCommitHooks>
     </hudson.triggers.SCMTrigger>
+    {{ end }}
   </triggers>
   <buildWrappers>
     <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.0">
