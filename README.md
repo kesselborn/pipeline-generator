@@ -127,6 +127,7 @@ This section contains global settings for the pipeline:
 
   - `jenkins-server`: base url to the jenkins server
   - `git-url`: git url to the project that is to be built
+  - `git-branch`: set this if you want to build a different branch to master
   - `slave-label` (optional): only execute these jobs on jenkins slave with this label
   - `job-setup` (optional): before executing each job, execute the code provided here
   - `silent` (optional): if set to true, don't send notification mails -- if omitted or false, sent mails
