@@ -30,7 +30,7 @@ func main() {
 		usage(fmt.Errorf("pipeline needs at least two arguments"))
 	}
 
-	f, err := os.Open("Pipeline.example")
+	f, err := os.Open("Pipeline")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to open file Pipeline.example: %s", err.Error())
 		os.Exit(1)
