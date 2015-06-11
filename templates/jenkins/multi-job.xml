@@ -51,6 +51,9 @@
     <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.25">
       <configs>
         <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.NodeParameters/>
+          </configs>
           <projects>{{ . }}</projects>
           <condition>SUCCESS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
