@@ -194,19 +194,16 @@ git reset --hard ${GIT_SHA}{{ end }}
       <downstreamProjectNames>{{ .NextManualJobs }}</downstreamProjectNames>
     </au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger>
     {{ end }}
-    {{ range .NextJobs }}
-    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.25">
-      <configs>
-        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
-          <configs>
-            <hudson.plugins.parameterizedtrigger.NodeParameters/>
-          </configs>
-          <projects>{{ . }}</projects>
-          <condition>SUCCESS</condition>
-          <triggerWithNoParameters>false</triggerWithNoParameters>
-        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
-      </configs>
-    </hudson.plugins.parameterizedtrigger.BuildTrigger>
+    {{ if .NextJobs }}
+    <hudson.tasks.BuildTrigger>
+      <childProjects>{{ .NextJobs }}</childProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </hudson.tasks.BuildTrigger>
     {{ end }}
   </publishers>
 </project>

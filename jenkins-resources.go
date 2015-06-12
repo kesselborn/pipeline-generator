@@ -45,7 +45,7 @@ type jenkinsJob struct {
 	ProjectNameTempl  string
 	StageName         string
 	NextManualJobs    string
-	NextJobs          []string
+	NextJobs          string
 }
 
 type jenkinsSingleJob struct {
@@ -327,14 +327,14 @@ func (jpv jenkinsPipelineView) projectName(pipelineName string) (string, error) 
 	return b.String(), nil
 }
 
-func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates []string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) (jenkinsMultiJob, []jenkinsSingleJob) {
+func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) (jenkinsMultiJob, []jenkinsSingleJob) {
 	projectNameTempl := []string{createProjectNameTempl(jobCnt, stage.Name, job)}
 	var subJobs []jenkinsSingleJob
 	var subJobsTemplates []string
 
 	for _, subJob := range job.SubJobs {
 		jobCnt++
-		jenkinsJob := newJenkinsJob(conf, subJob, setup, stage, []string{}, "", stageJobCnt, jobCnt, notify)
+		jenkinsJob := newJenkinsJob(conf, subJob, setup, stage, "", "", stageJobCnt, jobCnt, notify)
 		jenkinsJob.IsSubJob = true
 		jenkinsJob.TaskName = "---- " + jenkinsJob.TaskName // indent sub jobs
 		subJobs = append(subJobs, jenkinsJob)
@@ -356,7 +356,7 @@ func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage conf
 	return jenkinsMultiJob, subJobs
 }
 
-func newJenkinsJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates []string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) jenkinsSingleJob {
+func newJenkinsJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) jenkinsSingleJob {
 	projectNameTempl := createProjectNameTempl(jobCnt, stage.Name, job)
 
 	gitBranch, gitBranchPresent := conf.Settings["git-branch"]
@@ -448,18 +448,18 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 	jobCnt := 0
 	for _, stage := range conf.Stages {
 		for stageJobCnt, job := range stage.Jobs {
-			var nextJobsTemplates []string
+			var nextJobsTemplates string
 			var nextManualJobsTemplate string
 			if stageJobCnt == len(stage.Jobs)-1 { // last job in stage uses explict next-jobs
-				nextJobsTemplates = append(conf.nextJobTemplatesForStage(stage.NextStages, false), job.DownstreamJobs...)
+				nextJobsTemplates = strings.Join(append(conf.nextJobTemplatesForStage(stage.NextStages, false), job.DownstreamJobs...), ",")
 				nextManualJobsTemplate = strings.Join(conf.nextJobTemplatesForStage(stage.NextStages, true), ",")
 			} else {
 				nextJob := stage.Jobs[stageJobCnt+1]
 				if nextJob.TriggeredManually {
-					nextJobsTemplates = job.DownstreamJobs
+					nextJobsTemplates = strings.Join(job.DownstreamJobs, ",")
 					nextManualJobsTemplate = createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])
 				} else {
-					nextJobsTemplates = append([]string{createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])}, job.DownstreamJobs...)
+					nextJobsTemplates = strings.Join(append([]string{createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])}, job.DownstreamJobs...), ",")
 				}
 			}
 

@@ -154,7 +154,7 @@ func TestPipelineCreation(t *testing.T) {
 		{"job0 git url", "http://github.com/kesselborn/tuev", jp.resources[0].(jenkinsSingleJob).GitURL},
 		{"job0 git branch is set to master", "master", jp.resources[0].(jenkinsSingleJob).BranchSpecifier},
 		{"job0 slave label", "master", jp.resources[0].(jenkinsSingleJob).SlaveLabel},
-		{"job0 nextJobs", []string{"~{{ .PipelineName }}.01.stage0.job1", "downstreamjob1"}, jp.resources[0].(jenkinsSingleJob).NextJobs},
+		{"job0 nextJobs", "~{{ .PipelineName }}.01.stage0.job1,downstreamjob1", jp.resources[0].(jenkinsSingleJob).NextJobs},
 		{"job0 manualNextJobs", "", jp.resources[0].(jenkinsSingleJob).NextManualJobs},
 		{"job0 workingDir", "subdir/.*", jp.resources[0].(jenkinsSingleJob).WorkingDir},
 		{"job0 upstream jobs", "upstreamjob1,upstreamjob2", jp.resources[0].(jenkinsSingleJob).UpstreamJobs},
@@ -165,10 +165,10 @@ func TestPipelineCreation(t *testing.T) {
 		{"job1 git url", "http://github.com/kesselborn/tuev", jp.resources[1].(jenkinsSingleJob).GitURL},
 		{"job1 jenkins projectName", "~test-project.01.stage0.job1", job1EndPoint},
 
-		{"job2 next job", []string{"~{{ .PipelineName }}.03.stage1.multi__job4_job5"}, jp.resources[2].(jenkinsSingleJob).NextJobs},
+		{"job2 next job", "~{{ .PipelineName }}.03.stage1.multi__job4_job5", jp.resources[2].(jenkinsSingleJob).NextJobs},
 
 		{"job3 projectNameFmt", "~{{ .PipelineName }}.03.stage1.multi__job4_job5", jp.resources[3].(jenkinsMultiJob).ProjectNameTempl},
-		{"job3 nextJobs", []string{"~{{ .PipelineName }}.06.stage2.multi__job7_job8"}, jp.resources[3].(jenkinsMultiJob).NextJobs},
+		{"job3 nextJobs", "~{{ .PipelineName }}.06.stage2.multi__job7_job8", jp.resources[3].(jenkinsMultiJob).NextJobs},
 
 		{"job4 projectName", "~{{ .PipelineName }}.04.stage1.job4", jp.resources[4].(jenkinsSingleJob).ProjectNameTempl},
 		{"job4 name has whitespace prefix", "---- job4", jp.resources[4].(jenkinsSingleJob).TaskName},
@@ -182,7 +182,7 @@ func TestPipelineCreation(t *testing.T) {
 		{"job12 name contains manual trigger prefix", "|>| job12", jp.resources[12].(jenkinsSingleJob).TaskName},
 
 		{"job12 stage name", "stage4", jp.resources[13].(jenkinsSingleJob).StageName},
-		{"job12 does not have next job as it is in manual stage", 0, len(jp.resources[13].(jenkinsSingleJob).NextJobs)},
+		{"job12 does not have next job as it is in manual stage", "", jp.resources[13].(jenkinsSingleJob).NextJobs},
 
 		{"job14 escapes ampersands in cmd field correctly", "\n# change to working dir:\ncd subdir\n\n\n# job setup\nexport VAR=foobar\n\n# job\necho 'job14' &amp;&amp; ls", jp.resources[14].(jenkinsSingleJob).Command},
 
