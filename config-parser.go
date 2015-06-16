@@ -118,6 +118,8 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 							cj.Artifact = jvalue.(string)
 						case "test-reports":
 							cj.TestReports = jvalue.(string)
+						default:
+							return fmt.Errorf("unknown string options passed in: %s", jkey)
 						}
 					case bool:
 						switch jkey {
@@ -125,6 +127,8 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 							cj.NoClean = jvalue.(bool)
 						case "manual":
 							cj.TriggeredManually = jvalue.(bool)
+						default:
+							return fmt.Errorf("unknown bool options passed in: %s", jkey)
 						}
 					case []interface{}:
 						switch jkey {
@@ -136,6 +140,8 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 							for _, upstreamJob := range jvalue.([]interface{}) {
 								cj.UpstreamJobs = append(cj.UpstreamJobs, upstreamJob.(string))
 							}
+						default:
+							return fmt.Errorf("unknown array option passed in: %s", jkey)
 						}
 					default:
 						return fmt.Errorf("job hash must only contain string or bool values, got %#v for key %s", jvalueType, jkey)
