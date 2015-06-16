@@ -56,6 +56,7 @@ type configJob struct {
 	Label             string
 	NoClean           bool
 	SubJobs           []configJob
+	TestReports       string
 	TriggeredManually bool
 	UpstreamJobs      []string
 }
@@ -115,6 +116,8 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 							cj.Cmd = escape(jvalue.(string))
 						case "artifact":
 							cj.Artifact = jvalue.(string)
+						case "test-reports":
+							cj.TestReports = jvalue.(string)
 						}
 					case bool:
 						switch jkey {

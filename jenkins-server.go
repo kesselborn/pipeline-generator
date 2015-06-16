@@ -188,6 +188,7 @@ func (js JenkinsServer) Check() error {
 		"delivery-pipeline-plugin",
 		"git",
 		"jenkins-multijob-plugin",
+		"junit",
 		"next-build-number",
 		"parameterized-trigger",
 		"timestamper",

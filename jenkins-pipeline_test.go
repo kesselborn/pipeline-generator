@@ -1,11 +1,13 @@
 package pipeline
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -158,6 +160,7 @@ func TestPipelineCreation(t *testing.T) {
 		{"job0 manualNextJobs", "", jp.resources[0].(jenkinsSingleJob).NextManualJobs},
 		{"job0 workingDir", "subdir/.*", jp.resources[0].(jenkinsSingleJob).WorkingDir},
 		{"job0 upstream jobs", "upstreamjob1,upstreamjob2", jp.resources[0].(jenkinsSingleJob).UpstreamJobs},
+		{"job0 test reports should be set", "target/junit/*.xml", jp.resources[0].(jenkinsSingleJob).TestReports},
 
 		{"job1 name", "job1", jp.resources[1].(jenkinsSingleJob).TaskName},
 		{"job1 IsInitialJob", false, jp.resources[1].(jenkinsSingleJob).IsInitialJob},
@@ -257,12 +260,17 @@ func TestRendering(t *testing.T) {
 	multiArtifDeps, multiArtifDepsErr := jp.resources[7].renderResource("multiple-artifact-deps")
 	pipelineView, pipelineViewError := jp.resources[15].renderResource("pipeline-view")
 
+	singleInitialJobS, _ := ioutil.ReadAll(singleInitialJob)
+	singleInitialJob = bytes.NewReader(singleInitialJobS)
+
 	expectations{
 		{"rendering multi job should not throw error", nil, multiJobErr},
 		{"rendering normal job should not throw error", nil, singleJobErr},
 		{"rendering normal initial job should not throw error", nil, singleInitialJobErr},
 		{"rendering normal job with multiple artifact deps correctly", nil, multiArtifDepsErr},
 		{"rendering pipeline view shoud not throw error", nil, pipelineViewError},
+
+		{"initial job should have junit reports path", true, strings.Contains(string(singleInitialJobS), "target/junit/*.xml")},
 	}.Run(t)
 
 	if testing.Verbose() {

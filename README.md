@@ -95,11 +95,11 @@ The stages section contains an array of stages declarations that contain the fol
 
   - `name`: the name of the stage
   - `jobs`: an array of job declarations with the following format:
-      - simple job declaration: name / command: 
-       
+      - simple job declaration: name / command:
+
             {"<jobname>": "<command>"}
       - extended job declaration:
-       
+
             {"<jobname>": {"cmd": "<command>", "<option1>": "<option1-value>", "<option2>": "option2-value"}, ... }
 
        with the following options being available:
@@ -108,6 +108,8 @@ The stages section contains an array of stages declarations that contain the fol
 
       `upstream-jobs`: an array of strings with job names that should trigger this pipeline after they have a successful new build
       `downstream-jobs`: an array of strings with job names that should be triggered when this pipeline was built successfully
+
+      `test-reports`: comma separated set of paths to junit test reports (wildcards like *.xml allowed)
 
       `no-clean`: if set to true, the workspace will not be cleaned before starting the job (default is to always clear workspace -- us this if you would like to cache dependencies or build artifacts between builds)
 

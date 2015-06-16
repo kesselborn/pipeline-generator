@@ -50,16 +50,18 @@ type jenkinsJob struct {
 
 type jenkinsSingleJob struct {
 	jenkinsJob
+
 	Artifact        string
 	ArtifactDep     []artifactDep
-	IsSubJob        bool
-	GitURL          string
 	BranchSpecifier string
 	Command         string
-	SlaveLabel      string
-	WorkingDir      string
-	UpstreamJobs    string
+	GitURL          string
+	IsSubJob        bool
 	Notify          bool
+	SlaveLabel      string
+	TestReports     string
+	UpstreamJobs    string
+	WorkingDir      string
 }
 
 type jenkinsMultiJob struct {
@@ -377,6 +379,7 @@ func newJenkinsJob(conf configFile, job configJob, setup string, stage configSta
 		Artifact:     job.Artifact,
 		GitURL:       gitURL.(string),
 		Command:      command,
+		TestReports:  job.TestReports,
 		UpstreamJobs: strings.Join(job.UpstreamJobs, ","),
 	}
 
