@@ -82,6 +82,7 @@
       <versionTemplate>${BUILD_NUMBER}-${GIT_REVISION,length=7}</versionTemplate>
       <updateDisplayName>true</updateDisplayName>
     </se.diabol.jenkins.pipeline.PipelineVersionContributor>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper@1.6.2"/>
   </buildWrappers>
   {{ else }}
   <scm class="hudson.plugins.git.GitSCM" plugin="git@2.2.9">

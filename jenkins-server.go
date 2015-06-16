@@ -182,6 +182,7 @@ func (js JenkinsServer) Check() error {
 	}
 
 	return plugins.installed([]string{
+		"ansicolor",
 		"build-pipeline-plugin",
 		"copyartifact",
 		"delivery-pipeline-plugin",
@@ -189,7 +190,7 @@ func (js JenkinsServer) Check() error {
 		"jenkins-multijob-plugin",
 		"next-build-number",
 		"parameterized-trigger",
-		"ansicolor",
+		"timestamper",
 	})
 }
 
