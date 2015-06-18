@@ -305,7 +305,7 @@ func render(templName string, templ1Data interface{}, pipelineName string) (io.R
 	// 2nd pass: some properties contain {{ .PipelineName }}
 	templ, err = template.New(templName + "/2").Parse(firstRender.String())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error rendering template: %s\n\ntemplate content: %s", err, firstRender.String())
 	}
 
 	var secondRender bytes.Buffer

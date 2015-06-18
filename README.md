@@ -6,12 +6,12 @@ Declare jenkins pipelines using a json configuration file.
 
 # try it out
 
-This uses an example configuration of this project to demo features:
+This uses an example configuration of this project to demo features, it expects that you have golang installed:
 
-  - clone this project from git into
+  - clone this project
   - run `make example`
-  - adjust the file `Pipeline` to point to your test jenkins server
-  - execute `./ppl-example create test-pipeline` -- repeat until no errors are reported (it'll complain on missing jenkins plugins which you will need to install)
+  - adjust the file `Pipeline.example` to point to your test jenkins server
+  - execute `./ppl-example create` -- repeat until no errors are reported (it'll complain on missing jenkins plugins which you will need to install)
   - open url that is displayed
   - either wait ~1 minute or trigger the job called `test-pipeline` by hand and go back to the pipeline view
   - in order to delete the pipeline and its jobs again call `./ppl-example delete test-pipeline`

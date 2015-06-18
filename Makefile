@@ -18,7 +18,7 @@ deps:
 	go get golang.org/x/tools/cmd/vet
 	go get github.com/golang/lint/golint
 
-example: *.go
+example: *.go bindata.go
 	go build -o ppl-example ./example
 
-.PHONY: check bindata.go
+.PHONY: check bindata.go example
