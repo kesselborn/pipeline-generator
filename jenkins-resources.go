@@ -329,7 +329,7 @@ func (jpv jenkinsPipelineView) projectName(pipelineName string) (string, error) 
 	return b.String(), nil
 }
 
-func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) (jenkinsMultiJob, []jenkinsSingleJob) {
+func newJenkinsMultiJob(conf ConfigFile, job configJob, setup string, stage configStage, nextJobsTemplates string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) (jenkinsMultiJob, []jenkinsSingleJob) {
 	projectNameTempl := []string{createProjectNameTempl(jobCnt, stage.Name, job)}
 	var subJobs []jenkinsSingleJob
 	var subJobsTemplates []string
@@ -358,7 +358,7 @@ func newJenkinsMultiJob(conf configFile, job configJob, setup string, stage conf
 	return jenkinsMultiJob, subJobs
 }
 
-func newJenkinsJob(conf configFile, job configJob, setup string, stage configStage, nextJobsTemplates string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) jenkinsSingleJob {
+func newJenkinsJob(conf ConfigFile, job configJob, setup string, stage configStage, nextJobsTemplates string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) jenkinsSingleJob {
 	projectNameTempl := createProjectNameTempl(jobCnt, stage.Name, job)
 
 	gitBranch, gitBranchPresent := conf.Settings["git-branch"]
@@ -406,7 +406,7 @@ func newJenkinsJob(conf configFile, job configJob, setup string, stage configSta
 // This should only be used if the configuration json is embedded in another json file -- otherwise
 // use NewJenkinsPipeline
 func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
-	var conf configFile
+	var conf ConfigFile
 	var pipeline JenkinsPipeline
 	err := json.NewDecoder(bytes.NewReader(jsonString)).Decode(&conf)
 

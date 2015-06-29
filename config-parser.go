@@ -13,12 +13,12 @@ var (
 	errNextManualStagesDeprecated = errors.New("next-manual-stages setting is deprecated, please adjust your pipeline configuration according to http://git.io/xYoE")
 )
 
-type configFile struct {
+type ConfigFile struct {
 	Stages   []configStage          `json:"stages"`
 	Settings map[string]interface{} `json:"settings"`
 }
 
-func (c configFile) nextJobTemplatesForStage(stageNames []string, triggeredManually bool) []string {
+func (c ConfigFile) nextJobTemplatesForStage(stageNames []string, triggeredManually bool) []string {
 	nextJobTemplates := []string{}
 	for _, stageName := range stageNames {
 		jobCnt := 0
