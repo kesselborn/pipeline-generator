@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-var cf *configFile
+var cf *ConfigFile
 
 func ExampleJenkinsPipeline_UnmarshalJSON() {
 	var fname = "Pipeline"

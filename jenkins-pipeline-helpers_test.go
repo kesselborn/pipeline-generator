@@ -17,10 +17,10 @@ func configFileDescriptor(fileName string) (file *os.File) {
 	return r
 }
 
-func testConfigFile() *configFile {
+func testConfigFile() *ConfigFile {
 	if cf == nil {
 		fileName := "tests-fixtures/test_config.json"
-		var conf configFile
+		var conf ConfigFile
 		r := configFileDescriptor(fileName)
 		err := json.NewDecoder(r).Decode(&conf)
 		if err != nil {
