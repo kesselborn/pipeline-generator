@@ -5,7 +5,7 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <se.diabol.jenkins.pipeline.PipelineProperty plugin="delivery-pipeline-plugin@0.8.6">
-      <taskName>parxallel execution</taskName>
+      <taskName>parallel execution</taskName>
       <stageName>{{ .StageName }}</stageName>
     </se.diabol.jenkins.pipeline.PipelineProperty>
   </properties>
