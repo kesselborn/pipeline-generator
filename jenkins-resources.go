@@ -376,7 +376,7 @@ func newJenkinsJob(conf ConfigFile, job configJob, setup string, stage configSta
 			NextManualJobs:   nextManualJobsTemplate,
 		},
 		Notify:       notify,
-		Artifact:     job.Artifact,
+		Artifact:     strings.Join(job.Artifacts, ","),
 		GitURL:       gitURL.(string),
 		Command:      command,
 		TestReports:  job.TestReports,

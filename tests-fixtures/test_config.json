@@ -3,7 +3,7 @@
         {
             "name": "stage0",
             "jobs": [
-                { "job0": {"cmd": "echo 'job0'; mv spec spec2", "manual": true, "artifact": "spec2/", "upstream-jobs": ["upstreamjob1", "upstreamjob2"], "downstream-jobs": ["downstreamjob1"], "test-reports": "target/junit/*.xml"}},
+                { "job0": {"cmd": "echo 'job0'; mv spec spec2", "manual": true, "artifacts": ["spec2/"], "upstream-jobs": ["upstreamjob1", "upstreamjob2"], "downstream-jobs": ["downstreamjob1"], "test-reports": "target/junit/*.xml"}},
                 { "job1": "echo 'job1'; find ." }
             ],
             "next-stages": [ "stage1" ]
@@ -11,10 +11,10 @@
         {
             "name": "stage1",
             "jobs": [
-                { "job2": {"cmd": "echo 'job2'; cp -a spec spec1; cp -a spec spec2", "artifact": "spec1/,spec2/" } },
+                { "job2": {"cmd": "echo 'job2'; cp -a spec spec1; cp -a spec spec2", "artifacts": ["spec1/","spec2/"] } },
                 [
-                    { "job4": {"cmd": "echo 'job4'; mv spec1 spec3", "artifact": "spec3/"} },
-                    { "job5": {"cmd": "echo 'job5'; mv spec2 spec4", "artifact": "spec4/"} }
+                    { "job4": {"cmd": "echo 'job4'; mv spec1 spec3", "artifacts": ["spec3/"]} },
+                    { "job5": {"cmd": "echo 'job5'; mv spec2 spec4", "artifacts": ["spec4/"]} }
                 ]
             ],
             "next-stages": [ "stage2" ]
@@ -23,7 +23,7 @@
             "name": "stage2",
             "jobs": [
                 [
-                    { "job7": {"cmd": "echo 'job7'; touch art1; touch art2;", "no-clean": true, "artifact": "art1,art2"} },
+                    { "job7": {"cmd": "echo 'job7'; touch art1; touch art2;", "no-clean": true, "artifacts": ["art1","art2"]} },
                     { "job8": "echo 'job8'" }
                 ]
             ],
@@ -33,8 +33,8 @@
             "name": "stage3",
             "jobs": [
                 [
-                    { "job10": {"cmd": "echo 'job10'", "artifact": "art1"} },
-                    { "job11": {"cmd": "echo 'job11'", "artifact": "art2"} }
+                    { "job10": {"cmd": "echo 'job10'", "artifacts": ["art1"]} },
+                    { "job11": {"cmd": "echo 'job11'", "artifacts": ["art2"]} }
                 ],
                 { "job12": {"cmd": "echo notify", "manual": true }}
             ],

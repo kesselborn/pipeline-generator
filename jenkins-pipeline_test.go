@@ -100,6 +100,15 @@ func TestSingleJobCreation(t *testing.T) {
 	}.Run(t)
 }
 
+func TestArtifactDeprecationMessage(t *testing.T) {
+	_, err := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [{"foo":{"cmd": "bar", "artifact": "ar1,ar2"}}]}], "settings":{"jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
+
+	expectations{
+		{"should raise error", true, err != nil},
+		{"should have correct error messsage", "\ndeprecated attribute syntax:\n\n\"artifact\": \"ar1,ar2\"\n\nuse\n\n\"artifacts\": [\"ar1\",\"ar2\"]\n\ninstead\n", err.Error()},
+	}.Run(t)
+}
+
 func TestNotificationSetting(t *testing.T) {
 	pipeline1, err1 := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [{"foo":"bar"}]}], "settings":{"silent": true, "jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)
 	pipeline2, err2 := jenkinsConfigFromString(`{"stages": [{"name": "foo", "jobs": [{"foo":"bar"}]}], "settings":{"jenkins-server": "http://jenkins:8080", "git-url": "http://github.com/soundcloud/pipeline-generator"}}`)

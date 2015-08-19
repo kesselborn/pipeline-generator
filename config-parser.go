@@ -50,7 +50,7 @@ type configStage struct {
 }
 
 type configJob struct {
-	Artifact          string
+	Artifacts         []string
 	Cmd               string
 	DownstreamJobs    []string
 	Label             string
@@ -114,10 +114,11 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 						switch jkey {
 						case "cmd":
 							cj.Cmd = escape(jvalue.(string))
-						case "artifact":
-							cj.Artifact = jvalue.(string)
 						case "test-reports":
 							cj.TestReports = jvalue.(string)
+						case "artifact":
+							artifacts := strings.Split(jvalue.(string), ",")
+							return fmt.Errorf("\ndeprecated attribute syntax:\n\n\"artifact\": \"%s\"\n\nuse\n\n\"artifacts\": [\"%s\"]\n\ninstead\n", strings.Join(artifacts, ","), strings.Join(artifacts, `","`))
 						default:
 							return fmt.Errorf("unknown string options passed in: %s", jkey)
 						}
@@ -135,6 +136,10 @@ func (cj *configJob) UnmarshalJSON(jsonString []byte) error {
 						case "downstream-jobs":
 							for _, downstreamJob := range jvalue.([]interface{}) {
 								cj.DownstreamJobs = append(cj.DownstreamJobs, downstreamJob.(string))
+							}
+						case "artifacts":
+							for _, artifact := range jvalue.([]interface{}) {
+								cj.Artifacts = append(cj.Artifacts, artifact.(string))
 							}
 						case "upstream-jobs":
 							for _, upstreamJob := range jvalue.([]interface{}) {

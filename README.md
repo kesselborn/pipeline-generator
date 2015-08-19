@@ -29,7 +29,7 @@ looks as follows:
             {
                 "name": "stage0",
                 "jobs": [
-                    { "job0": {"cmd": "echo 'job0'; mv spec spec2", "artifact": "spec2/" } },
+                    { "job0": {"cmd": "echo 'job0'; mv spec spec2", "artifacts": ["spec2/"] } },
                     { "job1": "echo 'job1'; find ." }
                 ],
                 "next-stages": [ "stage1" ]
@@ -37,10 +37,10 @@ looks as follows:
             {
                 "name": "stage1",
                 "jobs": [
-                    { "job2": {"cmd": "echo 'job2'; cp -a spec spec1; cp -a spec spec2", "artifact": "spec1/,spec2/" } },
+                    { "job2": {"cmd": "echo 'job2'; cp -a spec spec1; cp -a spec spec2", "artifacts": ["spec1/","spec2/"] } },
                     [
-                        { "job4": {"cmd": "echo 'job4'; mv spec1 spec3", "artifact": "spec3/"} },
-                        { "job5": {"cmd": "echo 'job5'; mv spec2 spec4", "artifact": "spec4/"} }
+                        { "job4": {"cmd": "echo 'job4'; mv spec1 spec3", "artifacts": ["spec3/"]} },
+                        { "job5": {"cmd": "echo 'job5'; mv spec2 spec4", "artifacts": ["spec4/"]} }
                     ]
                 ],
                 "next-stages": [ "stage2" ]
@@ -59,8 +59,8 @@ looks as follows:
                 "name": "stage3",
                 "jobs": [
                     [
-                        { "job10": {"cmd": "echo 'job10'", "artifact": "art1"} },
-                        { "job11": {"cmd": "echo 'job11'", "artifact": "art2"} }
+                        { "job10": {"cmd": "echo 'job10'", "artifacts": ["art1"]} },
+                        { "job11": {"cmd": "echo 'job11'", "artifacts": ["art2"]} }
                     ],
                     { "job12": "echo notify" }
                 ],
@@ -104,7 +104,7 @@ The stages section contains an array of stages declarations that contain the fol
 
        with the following options being available:
 
-      `artifact`: pass on the listed artifacts (files or directories) to the next job. If the next job is a multi job, all sub-jobs will have the listed artifacts available. If several sub-jobs of a multi-job (see below) provide artifacts, the next job after the multi job will have all artifacts of all sub jobs available: in the example, `job7` and `job8` (sub-jobs of a multi-job) will receive the artifacts `spec3/` and `spec4/` from sub-jobs `job4` and `job5`.
+      `artifacts`: an array of strings with artifacts (files or directories) that should be passed to the next job. If the next job is a multi job, all sub-jobs will have the listed artifacts available. If several sub-jobs of a multi-job (see below) provide artifacts, the next job after the multi job will have all artifacts of all sub jobs available: in the example, `job7` and `job8` (sub-jobs of a multi-job) will receive the artifacts `spec3/` and `spec4/` from sub-jobs `job4` and `job5`. 
 
       `upstream-jobs`: an array of strings with job names that should trigger this pipeline after they have a successful new build
       `downstream-jobs`: an array of strings with job names that should be triggered when this pipeline was built successfully
