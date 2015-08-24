@@ -152,7 +152,7 @@
   <builders>
     {{ range .ArtifactDep }}
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.32.1">
-      <project>{{ .ProjectNameTempl }}</project>
+      <project>{{ .JobName }}</project>
       <filter>{{ .Artifact }}</filter>
       <target/>
       <excludes/>

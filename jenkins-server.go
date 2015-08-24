@@ -59,6 +59,15 @@ func (js JenkinsServer) createJob(jobName string, content io.Reader) error {
 	return checkResponse(resp)
 }
 
+func (js JenkinsServer) updateJob(url string, content io.Reader) error {
+	resp, err := http.Post(url+"config.xml", "application/xml", content)
+	if err != nil {
+		return err
+	}
+
+	return checkResponse(resp)
+}
+
 func (js JenkinsServer) createView(viewName string, content io.Reader) error {
 	resp, err := http.Post(string(js)+"/createView?name="+viewName, "application/xml", content)
 
@@ -95,6 +104,7 @@ func (js JenkinsServer) jobList() (jenkinsJobList, error) {
 	return jobList, nil
 }
 
+// removes a job from the list and returns the new list keeping the order and the removed job
 func (jl jenkinsJobList) remove(name string) (jenkinsJobList, jenkinsServerJob, error) {
 	jobs := jl.Jobs
 	for i, job := range jobs {

@@ -18,28 +18,7 @@ type ConfigFile struct {
 	Settings map[string]interface{} `json:"settings"`
 }
 
-func (c ConfigFile) nextJobTemplatesForStage(stageNames []string, triggeredManually bool) []string {
-	nextJobTemplates := []string{}
-	for _, stageName := range stageNames {
-		jobCnt := 0
-		for _, stage := range c.Stages {
-			if stage.Name == stageName {
-				firstJob := stage.Jobs[0]
-				if triggeredManually && firstJob.TriggeredManually {
-					nextJobTemplates = append(nextJobTemplates, createProjectNameTempl(jobCnt, stageName, firstJob))
-				} else if !triggeredManually && !firstJob.TriggeredManually {
-					nextJobTemplates = append(nextJobTemplates, createProjectNameTempl(jobCnt, stageName, firstJob))
-				}
-			}
-			for _, job := range stage.Jobs {
-				jobCnt += 1 + len(job.SubJobs)
-			}
-		}
-	}
-
-	return nextJobTemplates
-}
-
+// deprecated property
 type deprManStages []string
 
 type configStage struct {
@@ -61,6 +40,36 @@ type configJob struct {
 	UpstreamJobs      []string
 }
 
+func (c ConfigFile) nextJobs(nextStages []string) []string {
+	return c.nextJobTemplatesForStage(nextStages, false)
+}
+
+func (c ConfigFile) nextManualJobs(nextStages []string) []string {
+	return c.nextJobTemplatesForStage(nextStages, true)
+}
+
+// return the job names of all jobs that follow the stages in stageNames
+func (c ConfigFile) nextJobTemplatesForStage(nextStages []string, manualOnlyMode bool) []string {
+	nextJobNames := []string{}
+	for _, nextStage := range nextStages {
+		jobCnt := 0 // all job names of a pipeline include a counter
+		for _, stage := range c.Stages {
+			if stage.Name == nextStage { // only include given stages
+				firstJob := stage.Jobs[0]
+				if (manualOnlyMode && firstJob.TriggeredManually) ||
+					(!manualOnlyMode && !firstJob.TriggeredManually) {
+					nextJobNames = append(nextJobNames, jobNameTemplate(jobCnt, nextStage, firstJob))
+				}
+			}
+			for _, job := range stage.Jobs {
+				jobCnt += 1 + len(job.SubJobs)
+			}
+		}
+	}
+
+	return nextJobNames
+}
+
 func (cj configJob) taskName() string {
 	if cj.isMultiJob() {
 		taskName := []string{"multi_"}
@@ -77,7 +86,7 @@ func (cj configJob) isMultiJob() bool {
 	return len(cj.SubJobs) > 0
 }
 
-func createProjectNameTempl(jobCnt int, stageName string, job configJob) string {
+func jobNameTemplate(jobCnt int, stageName string, job configJob) string {
 	return fmt.Sprintf("~{{ .PipelineName }}.%02d.%s.%s", jobCnt, stageName, job.taskName())
 }
 
@@ -85,7 +94,7 @@ func escape(s string) string {
 	return strings.Replace(s, "&", "&amp;", -1)
 }
 
-// UnmarshalJSON correctly creates a configJob which can represent one job or a multijob
+// fail on deprecated attribute
 func (_ *deprManStages) UnmarshalJSON(jsonString []byte) error {
 	return errNextManualStagesDeprecated
 }

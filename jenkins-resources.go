@@ -22,7 +22,7 @@ var (
 type jenkinsResource interface {
 	renderResource(pipelineName string) (io.Reader, error)
 	createResource(js JenkinsServer, pipelineName string) error
-	projectName(pipelineName string) (string, error)
+	name(pipelineName string) (string, error)
 }
 
 // JenkinsPipeline represents a jenkins pipeline
@@ -32,9 +32,10 @@ type JenkinsPipeline struct {
 	JenkinsServer JenkinsServer
 }
 
-type artifactDep struct {
-	ProjectNameTempl string
-	Artifact         string
+// artifact that is created in a job
+type artifact struct {
+	JobName  string
+	Artifact string
 }
 
 type jenkinsJob struct {
@@ -42,7 +43,7 @@ type jenkinsJob struct {
 	TriggeredManually bool
 	CleanWorkspace    bool
 	TaskName          string
-	ProjectNameTempl  string
+	JobName           string
 	StageName         string
 	NextManualJobs    string
 	NextJobs          string
@@ -52,7 +53,7 @@ type jenkinsSingleJob struct {
 	jenkinsJob
 
 	Artifact        string
-	ArtifactDep     []artifactDep
+	ArtifactDep     []artifact
 	BranchSpecifier string
 	Command         string
 	GitURL          string
@@ -74,6 +75,17 @@ type jenkinsPipelineView struct {
 	jenkinsServer JenkinsServer
 }
 
+// NewJenkinsPipeline returns a JenkinsPipeline by parsing the given configuration
+func NewJenkinsPipeline(configuration io.Reader) (JenkinsPipeline, error) {
+	var pipeline JenkinsPipeline
+	err := json.NewDecoder(configuration).Decode(&pipeline)
+	if err != nil {
+		return JenkinsPipeline{}, fmt.Errorf("unable to parse pipeline configuration: %s\n", err.Error())
+	}
+
+	return pipeline, pipeline.JenkinsServer.Check()
+}
+
 // DefaultName returns a default name which can be set in the configuration file
 func (jp JenkinsPipeline) DefaultName() (string, error) {
 	if jp.defaultName == "" {
@@ -84,12 +96,13 @@ func (jp JenkinsPipeline) DefaultName() (string, error) {
 
 // UpdatePipeline updates the existing pipeline on JenkinsServer keeping as much state
 // as possible but using the updated config
-func (jp JenkinsPipeline) UpdatePipeline(pipelineName string) (string, error) {
-	jl, err := jp.JenkinsServer.pipelineJobs(pipelineName)
+func (jp JenkinsPipeline) UpdatePipeline(name string) (string, error) {
+	jobs, err := jp.JenkinsServer.pipelineJobs(name)
 	if err != nil {
 		return "", err
 	}
-	buildNum, err := jp.JenkinsServer.BuildNumber(pipelineName)
+
+	buildNum, err := jp.JenkinsServer.BuildNumber(name)
 	if err != nil {
 		buildNum = 0
 	}
@@ -99,44 +112,39 @@ func (jp JenkinsPipeline) UpdatePipeline(pipelineName string) (string, error) {
 		switch resource.(type) {
 		case jenkinsPipelineView:
 		default:
-			projectName, err := resource.projectName(pipelineName)
+			resourceName, err := resource.name(name)
 			if err != nil {
 				return "", err
 			}
 
-			jl, cur, err = jl.remove(projectName)
+			jobs, cur, err = jobs.remove(resourceName)
 			if err == nil { // resource already exists: just update
-				err = backup(projectName, cur["url"])
+				err = backup(resourceName, cur["url"])
 				if err != nil {
 					return "", err
 				}
 
-				src, err := resource.renderResource(pipelineName)
+				src, err := resource.renderResource(name)
 				if err != nil {
 					return "", err
 				}
 
-				src = debugDumbContent(projectName, src)
+				src = debugDumbContent(resourceName, src)
 
 				info("update\t%s\n", cur["url"]+"config.xml")
 
-				resp, err := http.Post(cur["url"]+"config.xml", "application/xml", src)
-				if err != nil {
-					return "", err
-				}
-				if httpErr := checkResponse(resp); httpErr != nil {
-					return "", httpErr
-				}
+				return "", jp.JenkinsServer.updateJob(cur["url"], src)
 			} else { // create new resource
-				info("create\t%s\n", string(jp.JenkinsServer)+"/job/"+projectName)
-				if err := resource.createResource(jp.JenkinsServer, pipelineName); err != nil {
+				info("create\t%s\n", string(jp.JenkinsServer)+"/job/"+resourceName)
+				if err := resource.createResource(jp.JenkinsServer, name); err != nil {
 					return "", err
 				}
 			}
 		}
 	}
 
-	for _, jenkinsJob := range jl.Jobs {
+	// the remaining jobs to not exist anymore due to a changed pipeline config: let's delete them
+	for _, jenkinsJob := range jobs.Jobs {
 		err := backup(jenkinsJob["name"], jenkinsJob["url"])
 		if err != nil {
 			return "", err
@@ -148,13 +156,13 @@ func (jp JenkinsPipeline) UpdatePipeline(pipelineName string) (string, error) {
 		}
 	}
 
-	err = jp.JenkinsServer.SetBuildNumber(pipelineName, buildNum+1)
+	err = jp.JenkinsServer.SetBuildNumber(name, buildNum+1)
 
 	if len(jp.resources) == 1 {
-		return jp.JenkinsServer.jobURL(pipelineName), nil
+		return jp.JenkinsServer.jobURL(name), nil
 	}
 
-	return jp.JenkinsServer.viewURL(pipelineName), nil
+	return jp.JenkinsServer.viewURL(name), nil
 
 }
 
@@ -186,19 +194,8 @@ func (jp JenkinsPipeline) CreatePipeline(pipelineName string) (string, error) {
 	return jp.JenkinsServer.viewURL(pipelineName), nil
 }
 
-// NewJenkinsPipeline returns a JenkinsPipeline by parsing the given configuration
-func NewJenkinsPipeline(configuration io.Reader) (JenkinsPipeline, error) {
-	var pipeline JenkinsPipeline
-	err := json.NewDecoder(configuration).Decode(&pipeline)
-	if err != nil {
-		return JenkinsPipeline{}, fmt.Errorf("unable to parse pipeline configuration: %s\n", err.Error())
-	}
-
-	return pipeline, pipeline.JenkinsServer.Check()
-}
-
 func (jmj jenkinsMultiJob) createResource(js JenkinsServer, pipelineName string) error {
-	projectName, err := jmj.projectName(pipelineName)
+	resourceName, err := jmj.name(pipelineName)
 	if err != nil {
 		return err
 	}
@@ -207,34 +204,13 @@ func (jmj jenkinsMultiJob) createResource(js JenkinsServer, pipelineName string)
 	if err != nil {
 		return err
 	}
-	src = debugDumbContent(projectName, src)
+	src = debugDumbContent(resourceName, src)
 
-	return js.createJob(projectName, src)
-}
-
-func debugDumbContent(name string, content io.Reader) io.Reader {
-	if debugMode() {
-		f, err := ioutil.TempFile("", "__"+name+".xml__")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error creating xml dump for debugging: %s\n", err.Error())
-			os.Exit(1)
-		}
-		defer f.Close()
-		contentInBytes, err := ioutil.ReadAll(content)
-		_, err = f.Write(contentInBytes)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error creating xml dump for debugging: %s\n", err.Error())
-			os.Exit(2)
-		}
-		content = strings.NewReader(string(contentInBytes))
-		debug("dumped config.xml for '%s' to %s\n", name, f.Name())
-	}
-
-	return content
+	return js.createJob(resourceName, src)
 }
 
 func (jj jenkinsSingleJob) createResource(js JenkinsServer, pipelineName string) error {
-	projectName, err := jj.projectName(pipelineName)
+	resourceName, err := jj.name(pipelineName)
 	if err != nil {
 		return err
 	}
@@ -243,9 +219,9 @@ func (jj jenkinsSingleJob) createResource(js JenkinsServer, pipelineName string)
 	if err != nil {
 		return err
 	}
-	src = debugDumbContent(projectName, src)
+	src = debugDumbContent(resourceName, src)
 
-	return js.createJob(projectName, src)
+	return js.createJob(resourceName, src)
 }
 
 func (jpv jenkinsPipelineView) createResource(js JenkinsServer, pipelineName string) error {
@@ -258,8 +234,8 @@ func (jpv jenkinsPipelineView) createResource(js JenkinsServer, pipelineName str
 	return js.createView(pipelineName, src)
 }
 
-func (jj jenkinsJob) projectName(pipelineName string) (string, error) {
-	tmpl, err := template.New("jenkinsJob#projectName(" + pipelineName + ")").Parse(jj.ProjectNameTempl)
+func (jj jenkinsJob) name(pipelineName string) (string, error) {
+	tmpl, err := template.New("jenkinsJob#resourceName(" + pipelineName + ")").Parse(jj.JobName)
 	if err != nil {
 		return "", err
 	}
@@ -302,7 +278,7 @@ func render(templName string, templ1Data interface{}, pipelineName string) (io.R
 		return nil, err
 	}
 
-	// 2nd pass: some properties contain {{ .PipelineName }}
+	// 2nd pass: some properties contain {{ .PipelineName }} as the name can be given as a parameter
 	templ, err = template.New(templName + "/2").Parse(firstRender.String())
 	if err != nil {
 		return nil, fmt.Errorf("error rendering template: %s\n\ntemplate content: %s", err, firstRender.String())
@@ -315,8 +291,8 @@ func render(templName string, templ1Data interface{}, pipelineName string) (io.R
 
 }
 
-func (jpv jenkinsPipelineView) projectName(pipelineName string) (string, error) {
-	tmpl, err := template.New("jenkinsPipelineView#projectName(" + pipelineName + ")").Parse(jpv.Name)
+func (jpv jenkinsPipelineView) name(pipelineName string) (string, error) {
+	tmpl, err := template.New("jenkinsPipelineView#resourceName(" + pipelineName + ")").Parse(jpv.Name)
 	if err != nil {
 		return "", err
 	}
@@ -330,7 +306,7 @@ func (jpv jenkinsPipelineView) projectName(pipelineName string) (string, error) 
 }
 
 func newJenkinsMultiJob(conf ConfigFile, job configJob, setup string, stage configStage, nextJobsTemplates string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) (jenkinsMultiJob, []jenkinsSingleJob) {
-	projectNameTempl := []string{createProjectNameTempl(jobCnt, stage.Name, job)}
+	resourceName := []string{jobNameTemplate(jobCnt, stage.Name, job)}
 	var subJobs []jenkinsSingleJob
 	var subJobsTemplates []string
 
@@ -340,17 +316,17 @@ func newJenkinsMultiJob(conf ConfigFile, job configJob, setup string, stage conf
 		jenkinsJob.IsSubJob = true
 		jenkinsJob.TaskName = "---- " + jenkinsJob.TaskName // indent sub jobs
 		subJobs = append(subJobs, jenkinsJob)
-		subJobsTemplates = append(subJobsTemplates, jenkinsJob.ProjectNameTempl)
+		subJobsTemplates = append(subJobsTemplates, jenkinsJob.JobName)
 	}
 
 	jenkinsMultiJob := jenkinsMultiJob{
 		jenkinsJob: jenkinsJob{
-			IsInitialJob:     jobCnt == 0,
-			TaskName:         "parallel execution",
-			StageName:        stage.Name,
-			ProjectNameTempl: strings.Join(projectNameTempl, "_"),
-			NextJobs:         nextJobsTemplates,
-			NextManualJobs:   nextManualJobsTemplate,
+			IsInitialJob:   jobCnt == 0,
+			TaskName:       "parallel execution",
+			StageName:      stage.Name,
+			JobName:        strings.Join(resourceName, "_"),
+			NextJobs:       nextJobsTemplates,
+			NextManualJobs: nextManualJobsTemplate,
 		},
 		SubJobs: subJobsTemplates,
 	}
@@ -359,7 +335,7 @@ func newJenkinsMultiJob(conf ConfigFile, job configJob, setup string, stage conf
 }
 
 func newJenkinsJob(conf ConfigFile, job configJob, setup string, stage configStage, nextJobsTemplates string, nextManualJobsTemplate string, stageJobCnt int, jobCnt int, notify bool) jenkinsSingleJob {
-	projectNameTempl := createProjectNameTempl(jobCnt, stage.Name, job)
+	resourceName := jobNameTemplate(jobCnt, stage.Name, job)
 
 	gitBranch, gitBranchPresent := conf.Settings["git-branch"]
 	gitURL, _ := conf.Settings["git-url"]
@@ -367,13 +343,13 @@ func newJenkinsJob(conf ConfigFile, job configJob, setup string, stage configSta
 	command := setup + "# job\n" + job.Cmd
 	jenkinsJob := jenkinsSingleJob{
 		jenkinsJob: jenkinsJob{
-			IsInitialJob:     jobCnt == 0,
-			TaskName:         job.Label,
-			StageName:        stage.Name,
-			ProjectNameTempl: projectNameTempl,
-			NextJobs:         nextJobsTemplates,
-			CleanWorkspace:   !job.NoClean,
-			NextManualJobs:   nextManualJobsTemplate,
+			IsInitialJob:   jobCnt == 0,
+			TaskName:       job.Label,
+			StageName:      stage.Name,
+			JobName:        resourceName,
+			NextJobs:       nextJobsTemplates,
+			CleanWorkspace: !job.NoClean,
+			NextManualJobs: nextManualJobsTemplate,
 		},
 		Notify:       notify,
 		Artifact:     strings.Join(job.Artifacts, ","),
@@ -453,16 +429,17 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 		for stageJobCnt, job := range stage.Jobs {
 			var nextJobsTemplates string
 			var nextManualJobsTemplate string
+
 			if stageJobCnt == len(stage.Jobs)-1 { // last job in stage uses explict next-jobs
-				nextJobsTemplates = strings.Join(append(conf.nextJobTemplatesForStage(stage.NextStages, false), job.DownstreamJobs...), ",")
-				nextManualJobsTemplate = strings.Join(conf.nextJobTemplatesForStage(stage.NextStages, true), ",")
+				nextJobsTemplates = strings.Join(append(conf.nextJobs(stage.NextStages), job.DownstreamJobs...), ",")
+				nextManualJobsTemplate = strings.Join(conf.nextManualJobs(stage.NextStages), ",")
 			} else {
 				nextJob := stage.Jobs[stageJobCnt+1]
 				if nextJob.TriggeredManually {
 					nextJobsTemplates = strings.Join(job.DownstreamJobs, ",")
-					nextManualJobsTemplate = createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])
+					nextManualJobsTemplate = jobNameTemplate(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])
 				} else {
-					nextJobsTemplates = strings.Join(append([]string{createProjectNameTempl(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])}, job.DownstreamJobs...), ",")
+					nextJobsTemplates = strings.Join(append([]string{jobNameTemplate(jobCnt+len(job.SubJobs)+1, stage.Name, stage.Jobs[stageJobCnt+1])}, job.DownstreamJobs...), ",")
 				}
 			}
 
@@ -478,8 +455,8 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 			} else {
 				jenkinsJob := newJenkinsJob(conf, job, setup, stage, nextJobsTemplates, nextManualJobsTemplate, stageJobCnt, jobCnt, notify)
 
-				if jobCnt == 0 { // first job gets a nice name + polls git repo
-					jenkinsJob.ProjectNameTempl = "{{ .PipelineName }}"
+				if jobCnt == 0 { // first job gets a nice name
+					jenkinsJob.JobName = "{{ .PipelineName }}"
 					jenkinsJob.WorkingDir = workingDir
 				}
 
@@ -513,7 +490,8 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 }
 
 func setArtifactDep(jp *JenkinsPipeline, current jenkinsSingleJob, index int, differentMultiJob bool) {
-	ad := artifactDep{current.ProjectNameTempl, current.Artifact}
+	ad := artifact{current.JobName, current.Artifact}
+
 	switch jp.resources[index].(type) {
 	case jenkinsSingleJob:
 		nextJob := jp.resources[index].(jenkinsSingleJob)
@@ -540,4 +518,25 @@ func setArtifactDep(jp *JenkinsPipeline, current jenkinsSingleJob, index int, di
 			setArtifactDep(jp, current, i+index+1, true)
 		}
 	}
+}
+
+func debugDumbContent(name string, content io.Reader) io.Reader {
+	if debugMode() {
+		f, err := ioutil.TempFile("", "__"+name+".xml__")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error creating xml dump for debugging: %s\n", err.Error())
+			os.Exit(1)
+		}
+		defer f.Close()
+		contentInBytes, err := ioutil.ReadAll(content)
+		_, err = f.Write(contentInBytes)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error creating xml dump for debugging: %s\n", err.Error())
+			os.Exit(2)
+		}
+		content = strings.NewReader(string(contentInBytes))
+		debug("dumped config.xml for '%s' to %s\n", name, f.Name())
+	}
+
+	return content
 }

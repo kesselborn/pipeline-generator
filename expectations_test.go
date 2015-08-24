@@ -49,8 +49,8 @@ func (test expectation) runTest(file string, line int, ok bool, t *testing.T) {
 		if !stringArrayEqual(test.actual.([]string), test.expected.([]string)) {
 			ExpectationErrorf(file, line, ok, t, "'%s' failed!\nExpected: '%#v'\ngot     : '%#v'", test.description, test.expected, test.actual)
 		}
-	case []artifactDep:
-		if !artifactDepArrayEqual(test.actual.([]artifactDep), test.expected.([]artifactDep)) {
+	case []artifact:
+		if !artifactDepArrayEqual(test.actual.([]artifact), test.expected.([]artifact)) {
 			ExpectationErrorf(file, line, ok, t, "'%s' failed!\nExpected: '%#v'\ngot     : '%#v'", test.description, test.expected, test.actual)
 		}
 	case map[string]string:
