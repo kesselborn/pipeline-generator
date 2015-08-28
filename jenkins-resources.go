@@ -13,6 +13,10 @@ import (
 	"text/template"
 )
 
+const (
+	pipelineNamePlaceholder = "{{ .PipelineName }}"
+)
+
 var (
 	errGitURLMissing        = errors.New("settings/git-url is missing in the pipeline configuration")
 	errSettingsMissing      = errors.New("settings section is missing in the pipeline configuration")
@@ -194,6 +198,10 @@ func (jp JenkinsPipeline) CreatePipeline(pipelineName string) (string, error) {
 	return jp.JenkinsServer.viewURL(pipelineName), nil
 }
 
+func (jj jenkinsJob) createResource(js JenkinsServer, pipelineName string) error {
+	return fmt.Errorf("can't create resource for type jenkinsJob")
+}
+
 func (jmj jenkinsMultiJob) createResource(js JenkinsServer, pipelineName string) error {
 	resourceName, err := jmj.name(pipelineName)
 	if err != nil {
@@ -246,6 +254,10 @@ func (jj jenkinsJob) name(pipelineName string) (string, error) {
 	}
 
 	return b.String(), err
+}
+
+func (jj jenkinsJob) renderResource(pipelineName string) (io.Reader, error) {
+	return nil, fmt.Errorf("can't render jenkinsJob resource")
 }
 
 func (jj jenkinsSingleJob) renderResource(pipelineName string) (io.Reader, error) {
@@ -456,7 +468,7 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 				jenkinsJob := newJenkinsJob(conf, job, setup, stage, nextJobsTemplates, nextManualJobsTemplate, stageJobCnt, jobCnt, notify)
 
 				if jobCnt == 0 { // first job gets a nice name
-					jenkinsJob.JobName = "{{ .PipelineName }}"
+					jenkinsJob.JobName = pipelineNamePlaceholder
 					jenkinsJob.WorkingDir = workingDir
 				}
 
@@ -466,22 +478,23 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 		}
 	}
 
+	setupArtifactCopyCmds(&pipeline)
 	// set artifact dependencies
-	for i, res := range pipeline.resources {
-		switch res.(type) {
-		case jenkinsSingleJob:
-			current := res.(jenkinsSingleJob)
-			if current.Artifact != "" {
-				if len(pipeline.resources) > i+1 {
-					setArtifactDep(&pipeline, current, i+1, false)
-				}
-			}
-		}
-	}
+	//for i, res := range pipeline.resources {
+	//	switch res.(type) {
+	//	case jenkinsSingleJob:
+	//		current := res.(jenkinsSingleJob)
+	//		if current.Artifact != "" {
+	//			if len(pipeline.resources) > i+1 {
+	//				setArtifactDep(&pipeline, current, i+1, false)
+	//			}
+	//		}
+	//	}
+	//}
 
 	// only create pipeline view if there are more than one job
 	if len(pipeline.resources) > 1 {
-		pipeline.resources = append(pipeline.resources, jenkinsPipelineView{"{{ .PipelineName }}", pipeline.JenkinsServer})
+		pipeline.resources = append(pipeline.resources, jenkinsPipelineView{pipelineNamePlaceholder, pipeline.JenkinsServer})
 	}
 
 	*jp = pipeline
@@ -489,35 +502,101 @@ func (jp *JenkinsPipeline) UnmarshalJSON(jsonString []byte) error {
 	return err
 }
 
-func setArtifactDep(jp *JenkinsPipeline, current jenkinsSingleJob, index int, differentMultiJob bool) {
-	ad := artifact{current.JobName, current.Artifact}
+// if a job creates artifacts, make them available for the next job as well. If the next job is a multi job,
+// make the artifacts available to all sub-jobs. A job after a multijob should get all artifacts from all
+// sub jobs
+func setupArtifactCopyCmds(jp *JenkinsPipeline) error {
+	resCnt := len(jp.resources) - 1
 
-	switch jp.resources[index].(type) {
-	case jenkinsSingleJob:
-		nextJob := jp.resources[index].(jenkinsSingleJob)
-		if current.IsSubJob == false || differentMultiJob {
-			nextJob.ArtifactDep = append(nextJob.ArtifactDep, ad)
-			jp.resources[index] = nextJob
-		} else { // sub job artifacts are fetched in the next non-sub-job (sub jobs == parallel jobs)
-			found := false
-			for i := index; len(jp.resources) > i+1 && found == false; i++ {
-				switch jp.resources[i].(type) {
-				case jenkinsSingleJob:
-					if jp.resources[i].(jenkinsSingleJob).IsSubJob != true {
-						setArtifactDep(jp, current, i, true)
-						found = true
+	for resCnt > 0 {
+		to := jp.resources[resCnt] // artifacts should be copied to this job
+
+		for _, from := range jp.resources {
+			switch from.(type) {
+			case jenkinsSingleJob: // only jenkinsSingleJob produce artifacts
+				fromJob := from.(jenkinsSingleJob)
+				if res, _ := jp.wantsCopyArtifacts(from, to); res == true {
+					switch to.(type) {
+					case jenkinsSingleJob:
+						toJob := to.(jenkinsSingleJob)
+						fmt.Printf("GGGGGGGGGGGGGGGGGGGGGGGG S %#v -> %#v\n", fromJob.JobName, toJob.JobName)
+						toJob.ArtifactDep = append(toJob.ArtifactDep, artifact{fromJob.JobName, fromJob.Artifact})
+						jp.resources[resCnt] = toJob
+					case jenkinsMultiJob:
+						fmt.Printf("GGGGGGGGGGGGGGGGGGGGGGGG M %#v -> %#v\n", fromJob.JobName, to.(jenkinsMultiJob).JobName)
+						for _, toSubJobName := range to.(jenkinsMultiJob).SubJobs {
+							toSubJobIndex, err := jp.indexOf(toSubJobName)
+							if err != nil {
+								fmt.Printf("PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP")
+								return err
+							}
+
+							toSubJob := jp.resources[toSubJobIndex].(jenkinsSingleJob)
+							fmt.Printf("CCCCCCCCCCCCCCCCC %s -> %s\n", toSubJob.JobName, fromJob.JobName)
+							toSubJob.ArtifactDep = append(toSubJob.ArtifactDep, artifact{fromJob.JobName, fromJob.Artifact})
+							jp.resources[toSubJobIndex] = toSubJob
+						}
 					}
-				case jenkinsMultiJob:
-					setArtifactDep(jp, current, i, true)
-					found = true
 				}
 			}
 		}
-	case jenkinsMultiJob: // set deps on subjobs, not on the multijob
-		for i := range jp.resources[index].(jenkinsMultiJob).SubJobs {
-			setArtifactDep(jp, current, i+index+1, true)
+		resCnt--
+	}
+
+	return nil
+}
+
+func (jp JenkinsPipeline) indexOf(resName string) (int, error) {
+	for i, res := range jp.resources {
+		curName, _ := res.name(pipelineNamePlaceholder)
+		if curName == resName {
+			return i, nil
 		}
 	}
+
+	return -1, fmt.Errorf("no resource named '%s' found\n", resName)
+}
+
+func (jp JenkinsPipeline) wantsCopyArtifacts(from, to jenkinsResource) (bool, error) {
+	switch from.(type) {
+	case jenkinsSingleJob:
+		fromJob := from.(jenkinsSingleJob)
+		toName, _ := to.name(pipelineNamePlaceholder)
+
+		if fromJob.IsSubJob {
+			fromName, _ := from.name(pipelineNamePlaceholder)
+			fromJobIndex, err := jp.indexOf(fromName)
+			if err != nil {
+				return false, err
+			}
+			//fmt.Printf("WWWWWWWWWWWWWWWWWWWWWW %s -> %s\n", fromName, toName)
+			return jp.wantsCopyArtifacts(jp.resources[fromJobIndex-1], to)
+		}
+
+		allNextJobs := append(strings.Split(fromJob.NextJobs, ","), strings.Split(fromJob.NextManualJobs, ",")...)
+
+		//fmt.Fprintf(os.Stderr, "TTTTTTTTTTTTTTTTTTTTTTTT %#v / %s\n", allNextJobs, toName)
+		for _, job := range allNextJobs {
+			if job == toName {
+				fmt.Fprintf(os.Stderr, "EEEEEEEEEEEEEEEEEEEEEEEEEEE %s == %s\n", job, toName)
+				return true, nil
+			}
+		}
+	case jenkinsMultiJob:
+		fromJob := from.(jenkinsMultiJob)
+		toName, _ := to.name(pipelineNamePlaceholder)
+		allNextJobs := append(strings.Split(fromJob.NextJobs, ","), strings.Split(fromJob.NextManualJobs, ",")...)
+
+		//fmt.Fprintf(os.Stderr, "TTTTTTTTTTTTTTTTTTTTTTTT %#v / %s\n", allNextJobs, toName)
+		for _, job := range allNextJobs {
+			if job == toName {
+				fmt.Fprintf(os.Stderr, "EEEEEEEEEEEEEEEEEEEEEEEEEEE M %s == %s\n", fromJob.JobName, toName)
+				return true, nil
+			}
+		}
+	}
+
+	return false, nil
 }
 
 func debugDumbContent(name string, content io.Reader) io.Reader {
