@@ -58,13 +58,13 @@ func jenkinsConfigFromString(jsonString string) (*JenkinsPipeline, error) {
 	return &pipeline, nil
 }
 
-func artifactDepArrayEqual(a1 []artifact, a2 []artifact) bool {
+func artifactDepArrayEqual(a1 []artifactDep, a2 []artifactDep) bool {
 	if len(a1) != len(a2) {
 		return false
 	}
 
 	for i := 0; i < len(a1); i = i + 1 {
-		if a1[i].JobName != a2[i].JobName || a1[i].Artifact != a2[i].Artifact {
+		if a1[i].ProjectNameTempl != a2[i].ProjectNameTempl || a1[i].Artifact != a2[i].Artifact {
 			return false
 		}
 	}

@@ -145,8 +145,8 @@ func TestPipelineCreation(t *testing.T) {
 	jp, err := jenkinsConfigFromFile("tests-fixtures/test_config.json")
 	defaultName, _ := jp.DefaultName()
 
-	job1EndPoint, job1EndPointError := jp.resources[1].name("test-project")
-	pipelineViewEndPoint, pipelineViewEndPointError := jp.resources[16].name("test-project")
+	job1EndPoint, job1EndPointError := jp.resources[1].projectName("test-project")
+	pipelineViewEndPoint, pipelineViewEndPointError := jp.resources[16].projectName("test-project")
 	expectations{
 		{"no parsing error happened", nil, err},
 		{"endpoint rendering for job1 worked", nil, job1EndPointError},
@@ -159,7 +159,7 @@ func TestPipelineCreation(t *testing.T) {
 		{"job0 manual", true, jp.resources[0].(jenkinsSingleJob).TriggeredManually},
 		{"job0 notify", true, jp.resources[0].(jenkinsSingleJob).Notify},
 		{"job0 IsInitialJob", true, jp.resources[0].(jenkinsSingleJob).IsInitialJob},
-		{"job0 projectNameFmt", "{{ .PipelineName }}", jp.resources[0].(jenkinsSingleJob).JobName},
+		{"job0 projectNameFmt", "{{ .PipelineName }}", jp.resources[0].(jenkinsSingleJob).ProjectNameTempl},
 		{"job0 stage name", "stage0", jp.resources[0].(jenkinsSingleJob).StageName},
 		{"job0 cmd", "\n# change to working dir:\ncd subdir\n\n\n# job setup\nexport VAR=foobar\n\n# job\necho 'job0'; mv spec spec2", jp.resources[0].(jenkinsSingleJob).Command},
 		{"job0 git url", "http://github.com/kesselborn/tuev", jp.resources[0].(jenkinsSingleJob).GitURL},
@@ -173,16 +173,16 @@ func TestPipelineCreation(t *testing.T) {
 
 		{"job1 name", "job1", jp.resources[1].(jenkinsSingleJob).TaskName},
 		{"job1 IsInitialJob", false, jp.resources[1].(jenkinsSingleJob).IsInitialJob},
-		{"job1 projectNameFmt", "~{{ .PipelineName }}.01.stage0.job1", jp.resources[1].(jenkinsSingleJob).JobName},
+		{"job1 projectNameFmt", "~{{ .PipelineName }}.01.stage0.job1", jp.resources[1].(jenkinsSingleJob).ProjectNameTempl},
 		{"job1 git url", "http://github.com/kesselborn/tuev", jp.resources[1].(jenkinsSingleJob).GitURL},
 		{"job1 jenkins projectName", "~test-project.01.stage0.job1", job1EndPoint},
 
 		{"job2 next job", "~{{ .PipelineName }}.03.stage1.multi__job4_job5", jp.resources[2].(jenkinsSingleJob).NextJobs},
 
-		{"job3 projectNameFmt", "~{{ .PipelineName }}.03.stage1.multi__job4_job5", jp.resources[3].(jenkinsMultiJob).JobName},
+		{"job3 projectNameFmt", "~{{ .PipelineName }}.03.stage1.multi__job4_job5", jp.resources[3].(jenkinsMultiJob).ProjectNameTempl},
 		{"job3 nextJobs", "~{{ .PipelineName }}.06.stage2.multi__job7_job8", jp.resources[3].(jenkinsMultiJob).NextJobs},
 
-		{"job4 projectName", "~{{ .PipelineName }}.04.stage1.job4", jp.resources[4].(jenkinsSingleJob).JobName},
+		{"job4 projectName", "~{{ .PipelineName }}.04.stage1.job4", jp.resources[4].(jenkinsSingleJob).ProjectNameTempl},
 		{"job4 name has whitespace prefix", "---- job4", jp.resources[4].(jenkinsSingleJob).TaskName},
 
 		{"job7 does not clean workspace", false, jp.resources[7].(jenkinsSingleJob).CleanWorkspace},
@@ -207,14 +207,14 @@ func TestPipelineArtifactLogic(t *testing.T) {
 
 	expectations{
 		{"job0 artifact", "spec2/", jp.resources[0].(jenkinsSingleJob).Artifact},
-		{"job1 artifact dependency", []artifact{{"{{ .PipelineName }}", "spec2/"}}, jp.resources[1].(jenkinsSingleJob).ArtifactDep},
+		{"job1 artifact dependency", []artifactDep{{"{{ .PipelineName }}", "spec2/"}}, jp.resources[1].(jenkinsSingleJob).ArtifactDep},
 		{"job2 artifact", "spec1/,spec2/", jp.resources[2].(jenkinsSingleJob).Artifact},
-		{"job4 artifact dependency", []artifact{{"~{{ .PipelineName }}.02.stage1.job2", "spec1/,spec2/"}}, jp.resources[4].(jenkinsSingleJob).ArtifactDep},
-		{"job5 artifact dependency", []artifact{{"~{{ .PipelineName }}.02.stage1.job2", "spec1/,spec2/"}}, jp.resources[5].(jenkinsSingleJob).ArtifactDep},
-		{"job7 artifact dependency", []artifact{{"~{{ .PipelineName }}.04.stage1.job4", "spec3/"}, {"~{{ .PipelineName }}.05.stage1.job5", "spec4/"}}, jp.resources[7].(jenkinsSingleJob).ArtifactDep},
-		{"job8 artifact dependency", []artifact{{"~{{ .PipelineName }}.04.stage1.job4", "spec3/"}, {"~{{ .PipelineName }}.05.stage1.job5", "spec4/"}}, jp.resources[8].(jenkinsSingleJob).ArtifactDep},
+		{"job4 artifact dependency", []artifactDep{{"~{{ .PipelineName }}.02.stage1.job2", "spec1/,spec2/"}}, jp.resources[4].(jenkinsSingleJob).ArtifactDep},
+		{"job5 artifact dependency", []artifactDep{{"~{{ .PipelineName }}.02.stage1.job2", "spec1/,spec2/"}}, jp.resources[5].(jenkinsSingleJob).ArtifactDep},
+		{"job7 artifact dependency", []artifactDep{{"~{{ .PipelineName }}.04.stage1.job4", "spec3/"}, {"~{{ .PipelineName }}.05.stage1.job5", "spec4/"}}, jp.resources[7].(jenkinsSingleJob).ArtifactDep},
+		{"job8 artifact dependency", []artifactDep{{"~{{ .PipelineName }}.04.stage1.job4", "spec3/"}, {"~{{ .PipelineName }}.05.stage1.job5", "spec4/"}}, jp.resources[8].(jenkinsSingleJob).ArtifactDep},
 
-		{"job12 artifact dependency", []artifact{{"~{{ .PipelineName }}.10.stage3.job10", "art1"}, {"~{{ .PipelineName }}.11.stage3.job11", "art2"}}, jp.resources[12].(jenkinsSingleJob).ArtifactDep},
+		{"job12 artifact dependency", []artifactDep{{"~{{ .PipelineName }}.10.stage3.job10", "art1"}, {"~{{ .PipelineName }}.11.stage3.job11", "art2"}}, jp.resources[12].(jenkinsSingleJob).ArtifactDep},
 	}.Run(t)
 }
 
