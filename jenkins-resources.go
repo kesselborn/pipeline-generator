@@ -66,7 +66,9 @@ type jenkinsSingleJob struct {
 
 type jenkinsMultiJob struct {
 	jenkinsJob
-	SubJobs []string
+	SubJobs         []string
+	GitURL          string
+	BranchSpecifier string
 }
 
 type jenkinsPipelineView struct {
@@ -333,6 +335,8 @@ func newJenkinsMultiJob(conf ConfigFile, job configJob, setup string, stage conf
 	projectNameTempl := []string{createProjectNameTempl(jobCnt, stage.Name, job)}
 	var subJobs []jenkinsSingleJob
 	var subJobsTemplates []string
+	gitBranch, gitBranchPresent := conf.Settings["git-branch"]
+	gitURL, _ := conf.Settings["git-url"]
 
 	for _, subJob := range job.SubJobs {
 		jobCnt++
@@ -352,7 +356,14 @@ func newJenkinsMultiJob(conf ConfigFile, job configJob, setup string, stage conf
 			NextJobs:         nextJobsTemplates,
 			NextManualJobs:   nextManualJobsTemplate,
 		},
+		GitURL:  gitURL.(string),
 		SubJobs: subJobsTemplates,
+	}
+
+	if gitBranchPresent {
+		jenkinsMultiJob.BranchSpecifier = gitBranch.(string)
+	} else {
+		jenkinsMultiJob.BranchSpecifier = "master"
 	}
 
 	return jenkinsMultiJob, subJobs
