@@ -181,6 +181,8 @@ func TestPipelineCreation(t *testing.T) {
 
 		{"job3 projectNameFmt", "~{{ .PipelineName }}.03.stage1.multi__job4_job5", jp.resources[3].(jenkinsMultiJob).ProjectNameTempl},
 		{"job3 nextJobs", "~{{ .PipelineName }}.06.stage2.multi__job7_job8", jp.resources[3].(jenkinsMultiJob).NextJobs},
+		{"job3 job has git repo", "http://github.com/kesselborn/tuev", jp.resources[3].(jenkinsMultiJob).GitURL},
+		{"job3 git branch is set to master", "master", jp.resources[3].(jenkinsMultiJob).BranchSpecifier},
 
 		{"job4 projectName", "~{{ .PipelineName }}.04.stage1.job4", jp.resources[4].(jenkinsSingleJob).ProjectNameTempl},
 		{"job4 name has whitespace prefix", "---- job4", jp.resources[4].(jenkinsSingleJob).TaskName},
