@@ -85,7 +85,11 @@
   <publishers>
     {{ if .NextManualJobs }}
     <au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger plugin="build-pipeline-plugin@1.4.3">
-      <configs/>
+      <configs>
+        <hudson.plugins.git.GitRevisionBuildParameters plugin="git@2.4.0">
+          <combineQueuedCommits>false</combineQueuedCommits>
+        </hudson.plugins.git.GitRevisionBuildParameters>
+      </configs>
       <downstreamProjectNames>{{ .NextManualJobs }}</downstreamProjectNames>
     </au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger>
     {{ end }}

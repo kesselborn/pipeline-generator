@@ -199,20 +199,29 @@ git reset --hard ${GIT_SHA}{{ end }}
     {{ end }}
     {{ if .NextManualJobs }}
     <au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger plugin="build-pipeline-plugin@1.4.3">
-      <configs/>
+      <configs>
+        <hudson.plugins.git.GitRevisionBuildParameters plugin="git@2.4.0">
+          <combineQueuedCommits>false</combineQueuedCommits>
+        </hudson.plugins.git.GitRevisionBuildParameters>
+      </configs>
       <downstreamProjectNames>{{ .NextManualJobs }}</downstreamProjectNames>
     </au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger>
     {{ end }}
     {{ if .NextJobs }}
-    <hudson.tasks.BuildTrigger>
-      <childProjects>{{ .NextJobs }}</childProjects>
-      <threshold>
-        <name>SUCCESS</name>
-        <ordinal>0</ordinal>
-        <color>BLUE</color>
-        <completeBuild>true</completeBuild>
-      </threshold>
-    </hudson.tasks.BuildTrigger>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.29">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.git.GitRevisionBuildParameters plugin="git@2.4.0">
+              <combineQueuedCommits>false</combineQueuedCommits>
+            </hudson.plugins.git.GitRevisionBuildParameters>
+          </configs>
+          <projects>{{ .NextJobs }}</projects>
+          <condition>SUCCESS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
     {{ end }}
   </publishers>
 </project>
