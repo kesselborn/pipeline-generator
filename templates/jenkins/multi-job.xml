@@ -71,6 +71,11 @@
           <condition></condition>
           <killPhaseOnJobResultCondition>FAILURE</killPhaseOnJobResultCondition>
           <buildOnlyIfSCMChanges>false</buildOnlyIfSCMChanges>
+          <configs>
+            <hudson.plugins.git.GitRevisionBuildParameters plugin="git@2.4.0">
+            <combineQueuedCommits>false</combineQueuedCommits>
+            </hudson.plugins.git.GitRevisionBuildParameters>
+          </configs>
         </com.tikal.jenkins.plugins.multijob.PhaseJobsConfig>
         {{ end }}
       </phaseJobs>
