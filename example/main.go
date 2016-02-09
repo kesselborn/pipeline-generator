@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	pipeline "github.com/soundcloud/pipeline-generator"
 	"os"
+
+	pipeline "github.com/kesselborn/pipeline-generator"
 )
 
 func usage(err error) {
@@ -22,13 +23,13 @@ USAGE: pipeline {create|delete|update} <pipeline-name>
 
 func main() {
 	// uncomment for debug information
-	// pipeline.DebugLogger = os.Stderr
+	pipeline.DebugLogger = os.Stderr
 	var err error
 	flag.Parse()
 	args := flag.Args()
-	f, err := os.Open("Pipeline.example")
+	f, err := os.Open("Pipeline")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to open file Pipeline.example: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "Unable to open file Pipeline", err.Error())
 		os.Exit(1)
 	}
 	defer f.Close()
@@ -68,6 +69,12 @@ func main() {
 		} else {
 			fmt.Fprintf(os.Stderr, "error: %s", err)
 		}
+	case "check":
+		if err := js.Check(); err != nil {
+			fmt.Fprintf(os.Stderr, "error: %s", err)
+			os.Exit(1)
+		}
+		fmt.Printf("all good\n")
 	default:
 		usage(fmt.Errorf("unknown 'dp' subCommand: '%s'", args))
 	}
