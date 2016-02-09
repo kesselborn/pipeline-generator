@@ -133,7 +133,13 @@ func (jp JenkinsPipeline) UpdatePipeline(name string) (string, error) {
 
 				info("update\t%s\n", cur["url"]+"config.xml")
 
-				return "", jp.JenkinsServer.updateJob(cur["url"], src)
+				resp, err := http.Post(cur["url"]+"config.xml", "application/xml", src)
+				if err != nil {
+					return "", err
+				}
+				if httpErr := checkResponse(resp); httpErr != nil {
+					return "", httpErr
+				}
 			} else { // create new resource
 				info("create\t%s\n", string(jp.JenkinsServer)+"/job/"+resourceName)
 				if err := resource.createResource(jp.JenkinsServer, name); err != nil {
